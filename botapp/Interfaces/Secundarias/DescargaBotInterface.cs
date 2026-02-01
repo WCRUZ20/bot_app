@@ -6,6 +6,7 @@ using botapp.Licensing;
 using botapp.Models;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
+using Microsoft.CognitiveServices.Speech;
 using Microsoft.Playwright;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -20,7 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Policy;
-using System.Speech.Synthesis;
+using DesktopSpeechSynthesizer = System.Speech.Synthesis.SpeechSynthesizer;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -855,15 +856,36 @@ namespace botapp.Interfaces.Secundarias
                 ? "El proceso de descarga ha finalizado, requiere su revision."
                 : "El proceso de descarga ha finalizado con exito.";
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
-                using (var sintetizador = new SpeechSynthesizer())
+                var speechKey = Environment.GetEnvironmentVariable("AZURE_SPEECH_KEY");
+                var speechRegion = Environment.GetEnvironmentVariable("AZURE_SPEECH_REGION");
+                var speechVoice = Environment.GetEnvironmentVariable("AZURE_SPEECH_VOICE");
+
+                if (!string.IsNullOrWhiteSpace(speechKey) && !string.IsNullOrWhiteSpace(speechRegion))
                 {
-                    sintetizador.SetOutputToDefaultAudioDevice();
-                    sintetizador.Speak(mensaje);
+                    var speechConfig = SpeechConfig.FromSubscription(speechKey, speechRegion);
+
+                    if (!string.IsNullOrWhiteSpace(speechVoice))
+                    {
+                        speechConfig.SpeechSynthesisVoiceName = speechVoice;
+                    }
+
+                    using (var sintetizadorAzure = new Microsoft.CognitiveServices.Speech.SpeechSynthesizer(speechConfig))
+                    {
+                        await sintetizadorAzure.SpeakTextAsync(mensaje).ConfigureAwait(false);
+                        return;
+                    }
+                }
+
+                using (var sintetizadorLocal = new DesktopSpeechSynthesizer())
+                {
+                    sintetizadorLocal.SetOutputToDefaultAudioDevice();
+                    sintetizadorLocal.Speak(mensaje);
                 }
             });
         }
+
 
         private async Task ProcesarClientesAsync(IReadOnlyList<ClienteProcesable> clientes, int indiceHilo, CancellationToken cancellationToken)
         {
