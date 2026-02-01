@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Policy;
+using System.Speech.Synthesis;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -773,6 +774,7 @@ namespace botapp.Interfaces.Secundarias
             _cancellationTokenSource = new CancellationTokenSource();
             ActualizarEstadoBotonProceso(true);
             //ReiniciarResultados();
+            LimpiarResumenProceso();
 
             try
             {
@@ -794,6 +796,7 @@ namespace botapp.Interfaces.Secundarias
 
                 if (mostrarMensajes)
                 {
+                    ReproducirMensajeFinal(ExistenFallosEnResumen());
                     MessageBox.Show("Proceso finalizado correctamente", "OK",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -827,6 +830,39 @@ namespace botapp.Interfaces.Secundarias
                 _cancellationTokenSource = null;
                 _procesoEnCurso = false;
             }
+        }
+
+        private void LimpiarResumenProceso()
+        {
+            lock (_lockResumen)
+            {
+                _resumenPorCliente.Clear();
+            }
+        }
+
+        private bool ExistenFallosEnResumen()
+        {
+            lock (_lockResumen)
+            {
+                return _resumenPorCliente.Values.Any(resumen =>
+                    resumen.Fallidas.Any(detalle => !detalle.Error.Contains("No existen datos")));
+            }
+        }
+
+        private void ReproducirMensajeFinal(bool huboFallos)
+        {
+            string mensaje = huboFallos
+                ? "El proceso de descarga ha finalizado, requiere su revision."
+                : "El proceso de descarga ha finalizado con exito.";
+
+            Task.Run(() =>
+            {
+                using (var sintetizador = new SpeechSynthesizer())
+                {
+                    sintetizador.SetOutputToDefaultAudioDevice();
+                    sintetizador.Speak(mensaje);
+                }
+            });
         }
 
         private async Task ProcesarClientesAsync(IReadOnlyList<ClienteProcesable> clientes, int indiceHilo, CancellationToken cancellationToken)
@@ -1498,15 +1534,18 @@ namespace botapp.Interfaces.Secundarias
         private void GenerarResumenCliente(string usuario,string nombre,List<DescargaDetalle> exitosas,List<DescargaDetalle> fallidas,List<KeyValuePair<int, string>> tiposFiltrados,List<(int Mes, int Año)> mesesConsulta, string pathHilo)
         {
             // Guardar resumen en diccionario
-            _resumenPorCliente[usuario] = new ResumenCliente
+            lock (_lockResumen)
             {
-                Usuario = usuario,
-                Nombre = nombre,
-                Exitosas = new List<DescargaDetalle>(exitosas),
-                Fallidas = new List<DescargaDetalle>(fallidas),
-                TiposFiltrados = new List<KeyValuePair<int, string>>(tiposFiltrados),
-                MesesConsulta = new List<(int Mes, int Año)>(mesesConsulta)
-            };
+                _resumenPorCliente[usuario] = new ResumenCliente
+                {
+                    Usuario = usuario,
+                    Nombre = nombre,
+                    Exitosas = new List<DescargaDetalle>(exitosas),
+                    Fallidas = new List<DescargaDetalle>(fallidas),
+                    TiposFiltrados = new List<KeyValuePair<int, string>>(tiposFiltrados),
+                    MesesConsulta = new List<(int Mes, int Año)>(mesesConsulta)
+                };
+            }
 
             // Log en archivo (mantener comportamiento original)
             LoggerHelper.Log(pathHilo, $"\n{'=',-60}");
