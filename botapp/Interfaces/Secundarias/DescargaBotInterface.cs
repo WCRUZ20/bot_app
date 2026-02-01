@@ -311,12 +311,21 @@ namespace botapp.Interfaces.Secundarias
                         grdDescarga.Columns.Add("Hilo", "Hilo");
                     }
 
-                    if (grdDescarga.Columns.Contains("Procesado"))
+                    if (!grdDescarga.Columns.Contains("Procesado"))
                     {
-                        grdDescarga.Columns["Procesado"].ReadOnly = true;
-                        grdDescarga.Columns["Procesado"].HeaderText = "Procesado";
-                        grdDescarga.Columns["Procesado"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                        var columnaProcesado = new DataGridViewTextBoxColumn
+                        {
+                            Name = "Procesado",
+                            HeaderText = "Procesado",
+                            ReadOnly = true,
+                            SortMode = DataGridViewColumnSortMode.NotSortable
+                        };
+                        grdDescarga.Columns.Add(columnaProcesado);
                     }
+
+                    grdDescarga.Columns["Procesado"].ReadOnly = true;
+                    grdDescarga.Columns["Procesado"].HeaderText = "Procesado";
+                    grdDescarga.Columns["Procesado"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
                     if (grdDescarga.Columns.Contains("Directorio"))
                     {
@@ -651,15 +660,15 @@ namespace botapp.Interfaces.Secundarias
                         }
                     }
 
-                    if (!dt.Columns.Contains("Procesado"))
-                    {
-                        DataColumn col = new DataColumn("Procesado", typeof(string));
-                        dt.Columns.Add(col);
-                        //col.SetOrdinal(0); // mueve la columna al índice 0
-                    }
+                    //if (!dt.Columns.Contains("Procesado"))
+                    //{
+                    //    DataColumn col = new DataColumn("Procesado", typeof(string));
+                    //    dt.Columns.Add(col);
+                    //    //col.SetOrdinal(0); // mueve la columna al índice 0
+                    //}
 
-                    foreach (DataRow row in dt.Rows)
-                        row["Procesado"] = String.Empty;
+                    //foreach (DataRow row in dt.Rows)
+                    //    row["Procesado"] = String.Empty;
 
                     if (!dt.Columns.Contains("Directorio"))
                     {
@@ -2041,6 +2050,12 @@ namespace botapp.Interfaces.Secundarias
                 foreach (DataGridViewRow row in grdDescarga.Rows)
                 {
                     if (row.IsNewRow) continue;
+                    if (row.DataBoundItem is DataRowView dataRowView &&
+                        (dataRowView.Row.RowState == DataRowState.Deleted ||
+                         dataRowView.Row.RowState == DataRowState.Detached))
+                    {
+                        continue;
+                    }
                     var cellUsuario = row.Cells["usuario"];
                     if (cellUsuario?.Value == null) continue;
 
@@ -2125,6 +2140,12 @@ namespace botapp.Interfaces.Secundarias
                 foreach (DataGridViewRow row in grdDescarga.Rows)
                 {
                     if (row.IsNewRow) continue;
+                    if (row.DataBoundItem is DataRowView dataRowView &&
+                        (dataRowView.Row.RowState == DataRowState.Deleted ||
+                         dataRowView.Row.RowState == DataRowState.Detached))
+                    {
+                        continue;
+                    }
                     var cellUsuario = row.Cells["usuario"];
                     if (cellUsuario?.Value == null) continue;
 
@@ -2136,6 +2157,10 @@ namespace botapp.Interfaces.Secundarias
                         }
 
                         var cellProcesado = row.Cells["Procesado"];
+                        if (cellProcesado == null)
+                        {
+                            break;
+                        }
                         cellProcesado.Value = estadoTexto;
                         cellProcesado.Style.BackColor = colorFondo;
                         cellProcesado.Style.ForeColor = Color.White;
