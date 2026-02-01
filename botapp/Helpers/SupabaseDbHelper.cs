@@ -614,15 +614,45 @@ namespace botapp.Helpers
         {
             try
             {
+                if (!int.TryParse(transaction.id_transaction, NumberStyles.Integer, CultureInfo.InvariantCulture, out int idTransaction))
+                {
+                    MessageBox.Show("Id de transacción inválido.");
+                    return false;
+                }
+
+                if (!int.TryParse(transaction.transaction_order, NumberStyles.Integer, CultureInfo.InvariantCulture, out int transactionOrder))
+                {
+                    MessageBox.Show("Orden de transacción inválido.");
+                    return false;
+                }
+
+                if (!int.TryParse(transaction.tipodocumento, NumberStyles.Integer, CultureInfo.InvariantCulture, out int tipoDocumento))
+                {
+                    MessageBox.Show("Tipo de documento inválido.");
+                    return false;
+                }
+
+                if (!int.TryParse(transaction.mes_consulta, NumberStyles.Integer, CultureInfo.InvariantCulture, out int mesConsulta))
+                {
+                    MessageBox.Show("Mes de consulta inválido.");
+                    return false;
+                }
+
+                if (!int.TryParse(transaction.estado, NumberStyles.Integer, CultureInfo.InvariantCulture, out int estado))
+                {
+                    MessageBox.Show("Estado de transacción inválido.");
+                    return false;
+                }
+
                 var payload = new
                 {
-                    id_transaction = int.Parse(transaction.id_transaction),
-                    transaction_order = int.Parse(transaction.transaction_order),
+                    id_transaction = idTransaction,
+                    transaction_order = transactionOrder,
                     resolution_provider = transaction.resolution_provider,
                     id_cliente = transaction.id_cliente,
-                    tipodocumento = int.Parse(transaction.tipodocumento),
-                    mes_consulta = int.Parse(transaction.mes_consulta),
-                    estado = int.Parse(transaction.estado),
+                    tipodocumento = tipoDocumento,
+                    mes_consulta = mesConsulta,
+                    estado = estado,
                     obervacion = transaction.observacion,
                     saldo = string.IsNullOrWhiteSpace(transaction.saldo)
                             ? (decimal?)null
