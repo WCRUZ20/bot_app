@@ -76,6 +76,7 @@ namespace botapp.Interfaces.Secundarias
 
         private readonly object _lockResultados = new object();
         private List<ResultadoProcesoItem> _resultados = new List<ResultadoProcesoItem>();
+        private readonly object _lockResumen = new object();
 
         private enum ResultadoConsulta
         {
@@ -835,29 +836,96 @@ namespace botapp.Interfaces.Secundarias
                 cancellationToken.ThrowIfCancellationRequested();
                 var cliente = clientes[i];
                 var estadosCliente = new List<EstadoResultado>();
+                var descargasExitosas = new List<DescargaDetalle>();
+                var descargasFallidas = new List<DescargaDetalle>();
+                var tiposFiltrados = cliente.Tipos
+                    .Select(tipo => new KeyValuePair<int, string>(ObtenerClaveTipo(tipo), tipo.Nombre ?? tipo.Value))
+                    .ToList();
+                var mesesConsulta = cliente.Periodos
+                    .Select(periodo => (periodo.Month, periodo.Year))
+                    .ToList();
+                string rutaLogCliente = ObtenerRutaLogCliente(cliente.Usuario, cliente.Nombre);
 
-                foreach (var periodo in cliente.Periodos)
+
+                try
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    foreach (var tipo in cliente.Tipos)
+                    foreach (var periodo in cliente.Periodos)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
-                        var parametros = new ParametrosConsulta
+                        foreach (var tipo in cliente.Tipos)
                         {
-                            Anio = periodo.Year.ToString(),
-                            Mes = periodo.Month.ToString(),
-                            Dia = "0",
-                            Tipo = tipo
-                        };
+                            cancellationToken.ThrowIfCancellationRequested();
+                            var parametros = new ParametrosConsulta
+                            {
+                                Anio = periodo.Year.ToString(),
+                                Mes = periodo.Month.ToString(),
+                                Dia = "0",
+                                Tipo = tipo
+                            };
 
-                        var estado = await EjecutarProcesoConReintentosAsync(url, false, cliente.Usuario, cliente.CiAdicional, cliente.Password, cliente.Nombre, parametros, cancellationToken);
-                        RegistrarResultado(cliente, parametros, estado);
-                        estadosCliente.Add(estado);
+                            EstadoResultado estado;
+                            try
+                            {
+                                estado = await EjecutarProcesoConReintentosAsync(url, false, cliente.Usuario, cliente.CiAdicional, cliente.Password, cliente.Nombre, parametros, cancellationToken);
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                throw;
+                            }
+                            catch (Exception ex)
+                            {
+                                estado = EstadoResultado.Fallido;
+                                LogCliente(cliente.Usuario, cliente.Nombre, $"❌ Error inesperado: {ex.Message}");
+                            }
+
+                            RegistrarResultado(cliente, parametros, estado);
+                            estadosCliente.Add(estado);
+                            RegistrarResumenDetalle(cliente, periodo, tipo, estado, descargasExitosas, descargasFallidas);
+                        }
                     }
                 }
-                var resumenEstado = CalcularEstadoCliente(estadosCliente);
-                ActualizarEstadoCliente(cliente.Usuario, resumenEstado.Texto, resumenEstado.ColorFondo);
+                finally
+                {
+                    GenerarResumenCliente(cliente.Usuario, cliente.Nombre, descargasExitosas, descargasFallidas, tiposFiltrados, mesesConsulta, rutaLogCliente);
+                    var resumenEstado = CalcularEstadoCliente(estadosCliente);
+                    ActualizarEstadoCliente(cliente.Usuario, resumenEstado.Texto, resumenEstado.ColorFondo);
+                }
             }
+        }
+
+        private void RegistrarResumenDetalle(ClienteProcesable cliente, DateTime periodo, TipoComprobante tipo, EstadoResultado estado, List<DescargaDetalle> exitosas, List<DescargaDetalle> fallidas)
+        {
+            var detalle = new DescargaDetalle
+            {
+                Cliente = cliente.Nombre,
+                TipoDocumento = tipo.Nombre ?? tipo.Value,
+                Mes = periodo.Month,
+                Año = periodo.Year,
+                Exitoso = estado == EstadoResultado.Exitoso
+            };
+
+            if (estado == EstadoResultado.Exitoso)
+            {
+                exitosas.Add(detalle);
+                return;
+            }
+
+            detalle.Error = estado == EstadoResultado.SinDatos ? "No existen datos" : "Error de descarga";
+            fallidas.Add(detalle);
+        }
+
+        private int ObtenerClaveTipo(TipoComprobante tipo)
+        {
+            return int.TryParse(tipo.Value, out var clave) ? clave : 0;
+        }
+
+        private string ObtenerRutaLogCliente(string usuario, string nombre)
+        {
+            string logDirectory = PrepararRutaLog(downloadPath);
+            string sanitizedNombre = SanitizarNombreArchivo(nombre);
+            string fecha = DateTime.Now.ToString("yyyyMMdd");
+            string logFile = $"{usuario}_{sanitizedNombre}_{fecha}.log";
+            return Path.Combine(logDirectory, logFile);
         }
 
         private void RegistrarResultado(ClienteProcesable cliente, ParametrosConsulta parametros, EstadoResultado estado)

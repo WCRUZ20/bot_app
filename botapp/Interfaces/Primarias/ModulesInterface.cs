@@ -69,8 +69,8 @@ namespace botapp.Interfaces.Primarias
             _imgSriExpanded = ScaleToFit(Properties.Resources.sri_logo, 26, 26);
             _imgSriCollapsed = ScaleToFit(Properties.Resources.sri_logo, 65, 55);
 
-            _imgEdocExpanded = ScaleToFit(Properties.Resources.edoc_logo, 80, 26);  
-            _imgEdocCollapsed = ScaleToFit(Properties.Resources.edoc_logo, 65, 55);
+            _imgEdocExpanded = ScaleToFit(Properties.Resources.edoc_logo_recorte, 80, 26);  
+            _imgEdocCollapsed = ScaleToFit(Properties.Resources.edoc_logo_recorte, 45, 35);
 
             _imgUserExpanded = ScaleToFit(Properties.Resources.usuario_imagen, 26, 26);
             _imgUserCollapsed = ScaleToFit(Properties.Resources.usuario_imagen, 30, 30);
@@ -122,7 +122,7 @@ namespace botapp.Interfaces.Primarias
             {
                 if (c is Button btn)
                 {
-                    if (btn == btnCarga) ApplyButtonLayout(btnCarga, "CARGA", Properties.Resources.edoc_logo, expanded: true);
+                    if (btn == btnCarga) ApplyButtonLayout(btnCarga, "CARGA", Properties.Resources.edoc_logo_recorte, expanded: true);
                     else if (btn == btnProceso) ApplyButtonLayout(btnProceso, "DESCARGA", Properties.Resources.sri_logo, expanded: true);
                     else if (btn == btnClientes) ApplyButtonLayout(btnClientes, "CLIENTES", Properties.Resources.usuario_imagen, expanded: true);
                     else if (btn == btnHistorial) ApplyButtonLayout(btnHistorial, "HISTORIAL", Properties.Resources.historial_imagen, expanded: true);
@@ -315,7 +315,7 @@ namespace botapp.Interfaces.Primarias
                 tableLayoutPanel2.ColumnStyles[0].Width = 0F;
                 tableLayoutPanel2.ColumnStyles[1].Width = 100F;
 
-                //ApplyButtonLayout(btnCarga, "CARGA", Properties.Resources.edoc_logo, expanded: false);
+                //ApplyButtonLayout(btnCarga, "CARGA", Properties.Resources.edoc_logo_recorte, expanded: false);
                //ApplyButtonLayout(btnProceso, "DESCARGA", Properties.Resources.sri_logo, expanded: false);
 
                 foreach (Control ctrl in tableLayoutPanel1.Controls)
