@@ -71,7 +71,7 @@ namespace botapp.Interfaces.Secundarias
         private const int MinutosCacheLicencia = 10;
         private string url;
         private const string DownloadFolderName = "Carga_Botcito";
-        private const string LogFolderName = "Logs";
+        private const string LogFolderName = "BOT_LOG";
         private string downloadPath = "";
 
         private readonly object _lockResultados = new object();
