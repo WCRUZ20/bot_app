@@ -834,6 +834,7 @@ namespace botapp.Interfaces.Secundarias
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var cliente = clientes[i];
+                var estadosCliente = new List<EstadoResultado>();
 
                 foreach (var periodo in cliente.Periodos)
                 {
@@ -851,8 +852,11 @@ namespace botapp.Interfaces.Secundarias
 
                         var estado = await EjecutarProcesoConReintentosAsync(url, false, cliente.Usuario, cliente.CiAdicional, cliente.Password, cliente.Nombre, parametros, cancellationToken);
                         RegistrarResultado(cliente, parametros, estado);
+                        estadosCliente.Add(estado);
                     }
                 }
+                var resumenEstado = CalcularEstadoCliente(estadosCliente);
+                ActualizarEstadoCliente(cliente.Usuario, resumenEstado.Texto, resumenEstado.ColorFondo);
             }
         }
 
@@ -1808,8 +1812,8 @@ namespace botapp.Interfaces.Secundarias
 
                     if (cell.OwningColumn.Name == "Procesado")
                     {
-                        if (valor == "OK") bgColor = BaseColor.GREEN;
-                        else if (valor == "ERROR") bgColor = BaseColor.RED;
+                        if (valor == "OK" || valor == "REVISAR") bgColor = BaseColor.GREEN;
+                        else if (valor == "FALLIDO") bgColor = BaseColor.RED;
                     }
 
                     tabla.AddCell(new PdfPCell(new Phrase(valor))
@@ -1920,6 +1924,81 @@ namespace botapp.Interfaces.Secundarias
                 LoggerHelper.Log(_logPath, $"⚠️ Error al actualizar color de fila: {ex.Message}");
             }
         }
+
+        private (string Texto, Color ColorFondo) CalcularEstadoCliente(IReadOnlyCollection<EstadoResultado> estados)
+        {
+            if (estados == null || estados.Count == 0)
+            {
+                return ("FALLIDO", Color.Red);
+            }
+
+            bool tieneExitoso = estados.Any(estado => estado == EstadoResultado.Exitoso || estado == EstadoResultado.SinDatos);
+            bool tieneFallido = estados.Any(estado => estado == EstadoResultado.Fallido);
+
+            if (!tieneExitoso && tieneFallido)
+            {
+                return ("FALLIDO", Color.Red);
+            }
+
+            if (tieneFallido)
+            {
+                return ("REVISAR", Color.Green);
+            }
+
+            return ("OK", Color.Green);
+        }
+
+        private void ActualizarEstadoCliente(string usuario, string estadoTexto, Color colorFondo)
+        {
+            if (grdDescarga == null || grdDescarga.IsDisposed) return;
+
+            if (grdDescarga.InvokeRequired)
+            {
+                try
+                {
+                    grdDescarga.BeginInvoke(new Action(() =>
+                        ActualizarEstadoCliente(usuario, estadoTexto, colorFondo)));
+                }
+                catch
+                {
+                    // Si el form ya se cerró, ignorar.
+                }
+                return;
+            }
+
+            try
+            {
+                foreach (DataGridViewRow row in grdDescarga.Rows)
+                {
+                    if (row.IsNewRow) continue;
+                    var cellUsuario = row.Cells["usuario"];
+                    if (cellUsuario?.Value == null) continue;
+
+                    if (cellUsuario.Value.ToString() == usuario)
+                    {
+                        if (!grdDescarga.Columns.Contains("Procesado"))
+                        {
+                            break;
+                        }
+
+                        var cellProcesado = row.Cells["Procesado"];
+                        cellProcesado.Value = estadoTexto;
+                        cellProcesado.Style.BackColor = colorFondo;
+                        cellProcesado.Style.ForeColor = Color.White;
+                        cellProcesado.Style.Font = new System.Drawing.Font("Segoe UI", 9F, FontStyle.Bold);
+                        cellProcesado.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+                        grdDescarga.Refresh();
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggerHelper.Log(_logPath, $"⚠️ Error al actualizar estado de fila: {ex.Message}");
+            }
+        }
+
     }
 
     public class DescargaDetalle
