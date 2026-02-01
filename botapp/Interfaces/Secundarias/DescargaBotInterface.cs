@@ -196,7 +196,7 @@ namespace botapp.Interfaces.Secundarias
             grdDescarga.CurrentCell = null;
             grdDescarga.DefaultCellStyle.SelectionBackColor = grdDescarga.DefaultCellStyle.BackColor;
             grdDescarga.DefaultCellStyle.SelectionForeColor = grdDescarga.DefaultCellStyle.ForeColor;
-            grdDescarga.CellContentClick += grdDescarga_CellContentClick;
+            //grdDescarga.CellContentClick += grdDescarga_CellContentClick;
 
             //Modificaciones visuales 
             grdDescarga.BackgroundColor = Color.White;//Color.FromArgb(245, 246, 250); // gris claro
@@ -306,10 +306,10 @@ namespace botapp.Interfaces.Secundarias
                         grdDescarga.Columns["carga"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                     }
 
-                    if (!grdDescarga.Columns.Contains("Hilo"))
-                    {
-                        grdDescarga.Columns.Add("Hilo", "Hilo");
-                    }
+                    //if (!grdDescarga.Columns.Contains("Hilo"))
+                    //{
+                    //    grdDescarga.Columns.Add("Hilo", "Hilo");
+                    //}
 
                     if (!grdDescarga.Columns.Contains("Procesado"))
                     {
@@ -327,34 +327,34 @@ namespace botapp.Interfaces.Secundarias
                     grdDescarga.Columns["Procesado"].HeaderText = "Procesado";
                     grdDescarga.Columns["Procesado"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
-                    if (grdDescarga.Columns.Contains("Directorio"))
-                    {
-                        // Ocultar la columna original vinculada al DataTable
-                        grdDescarga.Columns["Directorio"].Visible = false;
+                    //if (grdDescarga.Columns.Contains("Directorio"))
+                    //{
+                    //    // Ocultar la columna original vinculada al DataTable
+                    //    grdDescarga.Columns["Directorio"].Visible = false;
 
-                        // Verificar si ya existe la columna link personalizada
-                        if (!grdDescarga.Columns.Contains("DirectorioLink"))
-                        {
-                            var linkColumn = new DataGridViewLinkColumn
-                            {
-                                Name = "DirectorioLink",
-                                HeaderText = "Directorio",
-                                Text = "📂",
-                                UseColumnTextForLinkValue = true,
-                                LinkColor = Color.Blue,
-                                ActiveLinkColor = Color.DarkBlue,
-                                VisitedLinkColor = Color.Purple,
-                                Width = 80,
-                                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
-                            };
+                    //    // Verificar si ya existe la columna link personalizada
+                    //    if (!grdDescarga.Columns.Contains("DirectorioLink"))
+                    //    {
+                    //        var linkColumn = new DataGridViewLinkColumn
+                    //        {
+                    //            Name = "DirectorioLink",
+                    //            HeaderText = "Directorio",
+                    //            Text = "📂",
+                    //            UseColumnTextForLinkValue = true,
+                    //            LinkColor = Color.Blue,
+                    //            ActiveLinkColor = Color.DarkBlue,
+                    //            VisitedLinkColor = Color.Purple,
+                    //            Width = 80,
+                    //            AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                    //            DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
+                    //        };
 
-                            linkColumn.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                            grdDescarga.Columns.Add(linkColumn);
-                            grdDescarga.Columns["DirectorioLink"].DisplayIndex = grdDescarga.Columns.Count - 1;
-                            grdDescarga.Columns["Directorio"].DisplayIndex = grdDescarga.Columns.Count - 1;
-                        }
-                    }
+                    //        linkColumn.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                    //        grdDescarga.Columns.Add(linkColumn);
+                    //        grdDescarga.Columns["DirectorioLink"].DisplayIndex = grdDescarga.Columns.Count - 1;
+                    //        grdDescarga.Columns["Directorio"].DisplayIndex = grdDescarga.Columns.Count - 1;
+                    //    }
+                    //}
 
                     if (grdDescarga.Columns.Contains("orden"))
                     {
@@ -371,8 +371,8 @@ namespace botapp.Interfaces.Secundarias
                     //}
 
                     //grdDescarga.Columns["Claves cargadas"].ReadOnly = true;
-                    grdDescarga.Columns["DirectorioLink"].DisplayIndex = grdDescarga.Columns.Count - 1;
-                    grdDescarga.Columns["Hilo"].DisplayIndex = grdDescarga.Columns.Count - 2;
+                    //grdDescarga.Columns["DirectorioLink"].DisplayIndex = grdDescarga.Columns.Count - 1;
+                    //grdDescarga.Columns["Hilo"].DisplayIndex = grdDescarga.Columns.Count - 2;
 
                 }
                 catch { }
@@ -496,43 +496,43 @@ namespace botapp.Interfaces.Secundarias
             grdDescarga.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
-        private void grdDescarga_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0 && e.ColumnIndex >= 0 &&
-                grdDescarga.Columns[e.ColumnIndex].Name == "DirectorioLink")  // 🔹 Cambiar a "DirectorioLink"
-            {
-                DataRowView rowView = grdDescarga.Rows[e.RowIndex].DataBoundItem as DataRowView;
+        //private void grdDescarga_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        //{
+        //    if (e.RowIndex >= 0 && e.ColumnIndex >= 0 &&
+        //        grdDescarga.Columns[e.ColumnIndex].Name == "DirectorioLink")  // 🔹 Cambiar a "DirectorioLink"
+        //    {
+        //        DataRowView rowView = grdDescarga.Rows[e.RowIndex].DataBoundItem as DataRowView;
 
-                if (rowView != null)
-                {
-                    string ruta = rowView["Directorio"]?.ToString();  // 🔹 Sigue leyendo de "Directorio" del DataTable
+        //        if (rowView != null)
+        //        {
+        //            string ruta = rowView["Directorio"]?.ToString();  // 🔹 Sigue leyendo de "Directorio" del DataTable
 
-                    if (!string.IsNullOrWhiteSpace(ruta))
-                    {
-                        if (!Directory.Exists(ruta))
-                        {
-                            try
-                            {
-                                Directory.CreateDirectory(ruta);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Error al crear el directorio: {ex.Message}",
-                                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                return;
-                            }
-                        }
+        //            if (!string.IsNullOrWhiteSpace(ruta))
+        //            {
+        //                if (!Directory.Exists(ruta))
+        //                {
+        //                    try
+        //                    {
+        //                        Directory.CreateDirectory(ruta);
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+        //                        MessageBox.Show($"Error al crear el directorio: {ex.Message}",
+        //                            "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //                        return;
+        //                    }
+        //                }
 
-                        System.Diagnostics.Process.Start("explorer.exe", ruta);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Ruta de directorio no disponible.",
-                            "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-            }
-        }
+        //                System.Diagnostics.Process.Start("explorer.exe", ruta);
+        //            }
+        //            else
+        //            {
+        //                MessageBox.Show("Ruta de directorio no disponible.",
+        //                    "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //            }
+        //        }
+        //    }
+        //}
 
         private async Task CargarClientes_Desc()
         {
@@ -670,23 +670,23 @@ namespace botapp.Interfaces.Secundarias
                     //foreach (DataRow row in dt.Rows)
                     //    row["Procesado"] = String.Empty;
 
-                    if (!dt.Columns.Contains("Directorio"))
-                    {
-                        DataColumn col = new DataColumn("Directorio", typeof(string));
-                        dt.Columns.Add(col);
-                        //grdDescarga.Columns["DirectorioLink"].DisplayIndex = grdDescarga.Columns.Count - 1;
-                        //grdDescarga.Columns["Directorio"].DisplayIndex = grdDescarga.Columns.Count - 1;
-                    }
+                    //if (!dt.Columns.Contains("Directorio"))
+                    //{
+                    //    DataColumn col = new DataColumn("Directorio", typeof(string));
+                    //    dt.Columns.Add(col);
+                    //    //grdDescarga.Columns["DirectorioLink"].DisplayIndex = grdDescarga.Columns.Count - 1;
+                    //    //grdDescarga.Columns["Directorio"].DisplayIndex = grdDescarga.Columns.Count - 1;
+                    //}
 
-                    // 🔹 IMPORTANTE: Genera la ruta aquí para cada fila
-                    foreach (DataRow row in dt.Rows)
-                    {
-                        string usuario = row["usuario"].ToString();
-                        string nombreUsuario = row["NombUsuario"].ToString();
-                        string carpeta = $"{usuario} - {nombreUsuario}";
-                        string path = Helpers.Utils.ObtenerRutaDescargaPersonalizada(carpeta);
-                        row["Directorio"] = path;  // Guarda la ruta completa
-                    }
+                    //// 🔹 IMPORTANTE: Genera la ruta aquí para cada fila
+                    //foreach (DataRow row in dt.Rows)
+                    //{
+                    //    string usuario = row["usuario"].ToString();
+                    //    string nombreUsuario = row["NombUsuario"].ToString();
+                    //    string carpeta = $"{usuario} - {nombreUsuario}";
+                    //    string path = Helpers.Utils.ObtenerRutaDescargaPersonalizada(carpeta);
+                    //    row["Directorio"] = path;  // Guarda la ruta completa
+                    //}
 
                     grdDescarga.DataSource = dt;
 
