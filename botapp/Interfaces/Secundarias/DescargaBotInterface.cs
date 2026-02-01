@@ -17,6 +17,7 @@ using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -853,18 +854,22 @@ namespace botapp.Interfaces.Secundarias
         private void ReproducirMensajeFinal(bool huboFallos)
         {
             string mensaje = huboFallos
-                ? "El proceso de descarga ha finalizado, requiere su revision."
-                : "El proceso de descarga ha finalizado con exito.";
+                ? "The download process has finished and needs to be reviewed."
+                : "The download process has completed successfully.";
 
             Task.Run(async () =>
             {
                 var speechKey = Environment.GetEnvironmentVariable("AZURE_SPEECH_KEY");
                 var speechRegion = Environment.GetEnvironmentVariable("AZURE_SPEECH_REGION");
                 var speechVoice = Environment.GetEnvironmentVariable("AZURE_SPEECH_VOICE");
+                const string idiomaDefecto = "es-ES";
+                const string vozFemeninaDefecto = "es-ES-ElviraNeural";
 
                 if (!string.IsNullOrWhiteSpace(speechKey) && !string.IsNullOrWhiteSpace(speechRegion))
                 {
                     var speechConfig = SpeechConfig.FromSubscription(speechKey, speechRegion);
+                    speechConfig.SpeechSynthesisLanguage = idiomaDefecto;
+                    speechConfig.SpeechSynthesisVoiceName = vozFemeninaDefecto;
 
                     if (!string.IsNullOrWhiteSpace(speechVoice))
                     {
@@ -880,12 +885,32 @@ namespace botapp.Interfaces.Secundarias
 
                 using (var sintetizadorLocal = new DesktopSpeechSynthesizer())
                 {
+                    SeleccionarVozLocalFemenina(sintetizadorLocal, new CultureInfo(idiomaDefecto));
                     sintetizadorLocal.SetOutputToDefaultAudioDevice();
                     sintetizadorLocal.Speak(mensaje);
                 }
             });
         }
 
+        private static void SeleccionarVozLocalFemenina(DesktopSpeechSynthesizer sintetizador, CultureInfo cultura)
+        {
+            var voces = sintetizador
+                .GetInstalledVoices()
+                .Where(voz => voz.Enabled)
+                .ToList();
+
+            var vozCultura = voces.FirstOrDefault(voz =>
+                voz.VoiceInfo.Gender == System.Speech.Synthesis.VoiceGender.Female &&
+                Equals(voz.VoiceInfo.Culture, cultura));
+
+            var vozFemenina = vozCultura ?? voces.FirstOrDefault(voz =>
+                voz.VoiceInfo.Gender == System.Speech.Synthesis.VoiceGender.Female);
+
+            if (vozFemenina != null)
+            {
+                sintetizador.SelectVoice(vozFemenina.VoiceInfo.Name);
+            }
+        }
 
         private async Task ProcesarClientesAsync(IReadOnlyList<ClienteProcesable> clientes, int indiceHilo, CancellationToken cancellationToken)
         {
