@@ -392,7 +392,7 @@ namespace botapp.Interfaces.Secundarias
 
                     LoggerHelper.Log(logPath, $"[{nombre}] 📤 Enviando a EDOC ({claves.Length} claves)");
                     string clavesFilePath = Path.Combine(Helpers.Utils.ObtenerRutaDescargaPersonalizada("CLAVES_ENVIADAS"), $"claves_enviadas_{nombre}.txt");
-                    File.WriteAllLines(clavesFilePath, claves);
+                    var fechasExistentes = Helpers.Utils.ObtenerFechasClavesEnviadas(clavesFilePath);
 
                     var resultado = EnviarClavesWS(claveWS, claves, edocUrl);
                    
@@ -411,6 +411,18 @@ namespace botapp.Interfaces.Secundarias
                                 resultadoCell.Style.ForeColor = Color.White;
                                 _estado = "0";
                                 _obervacion = "Carga exitosa";
+                                string fechaCarga = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                var lineasSalida = new List<string>(claves.Length);
+
+                                foreach (var clave in claves)
+                                {
+                                    if (!fechasExistentes.TryGetValue(clave, out string fechaExistente) || string.IsNullOrWhiteSpace(fechaExistente))
+                                        fechaExistente = fechaCarga;
+
+                                    lineasSalida.Add($"{clave}\t{fechaExistente}");
+                                }
+
+                                File.WriteAllLines(clavesFilePath, lineasSalida, Encoding.UTF8);
                             }
                             else
                             {

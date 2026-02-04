@@ -136,9 +136,10 @@ namespace botapp.Interfaces.Secundarias
 
                     foreach (string clave in claves)
                     {
-                        if (!string.IsNullOrWhiteSpace(clave))
+                        string claveValor = Helpers.Utils.ExtraerClaveEnviada(clave);
+                        if (!string.IsNullOrWhiteSpace(claveValor))
                         {
-                            TreeNode claveNode = new TreeNode(clave.Trim());
+                            TreeNode claveNode = new TreeNode(claveValor);
                             clienteNode.Nodes.Add(claveNode);
                         }
                     }
@@ -215,14 +216,14 @@ namespace botapp.Interfaces.Secundarias
 
                     foreach (string clave in claves)
                     {
-                        if (string.IsNullOrWhiteSpace(clave))
+                        string claveValor = Helpers.Utils.ExtraerClaveEnviada(clave);
+                        if (string.IsNullOrWhiteSpace(claveValor))
                             continue;
 
-                        string claveTrim = clave.Trim();
-                        TreeNode claveNode = new TreeNode(claveTrim);
+                        TreeNode claveNode = new TreeNode(claveValor);
 
                         // ✅ Si hay filtro por clave → resaltar coincidencias
-                        if (!string.IsNullOrWhiteSpace(claveFiltro) && claveTrim.Contains(claveFiltro))
+                        if (!string.IsNullOrWhiteSpace(claveFiltro) && claveValor.Contains(claveFiltro))
                         {
                             claveNode.NodeFont = new Font("Segoe UI", 8F, FontStyle.Bold);
                             claveNode.ForeColor = Color.RoyalBlue;
