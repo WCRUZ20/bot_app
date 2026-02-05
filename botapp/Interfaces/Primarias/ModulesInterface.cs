@@ -54,6 +54,10 @@ namespace botapp.Interfaces.Primarias
         private Image _imgConfExpanded;
         private Image _imgConfCollapsed;
 
+        //imagen servicio
+        private Image _imgServExpanded;
+        private Image _imgServCollapsed;
+
         private Color botonNormal = Color.FromArgb(44, 44, 62);
         private Color botonHover = Color.FromArgb(59, 130, 246);
         private string _username = "";
@@ -84,6 +88,9 @@ namespace botapp.Interfaces.Primarias
 
             _imgConfExpanded = ScaleToFit(Properties.Resources.config_bot, 26, 26);
             _imgConfCollapsed = ScaleToFit(Properties.Resources.config_bot, 30, 30);
+
+            _imgServExpanded = ScaleToFit(Properties.Resources.reloj_logo, 26, 26);
+            _imgServCollapsed = ScaleToFit(Properties.Resources.reloj_logo, 30, 30);
 
             _username = userName;
             lbluser.Text = $"USUARIO: {userName}";
@@ -131,7 +138,7 @@ namespace botapp.Interfaces.Primarias
                     else if (btn == btnHistorial) ApplyButtonLayout(btnHistorial, "HISTORIAL", Properties.Resources.historial_imagen, expanded: true);
                     else if (btn == btnConfBot) ApplyButtonLayout(btnConfBot, "CONFIG. BOT", Properties.Resources.config_bot, expanded: true);
                     else if (btn == btnclavescarga) ApplyButtonLayout(btnConfBot, "CLAVES CARGADAS", Properties.Resources.buscar_imagen, expanded: true);
-                    else if (btn == btnConfServicio) ApplyButtonLayout(btnConfServicio, "CONF. SERVICIO", Properties.Resources.config_bot, expanded: true);
+                    else if (btn == btnConfServicio) ApplyButtonLayout(btnConfServicio, "CONF. SERVICIO", Properties.Resources.reloj_logo, expanded: true);
 
                     btn.TabStop = false;
                 }
@@ -361,7 +368,7 @@ namespace botapp.Interfaces.Primarias
                                 ApplyButtonLayout(btnConfBot, "CONFIG. BOT", _imgConfCollapsed, expanded: false);
                                 continue;
                             case "CONF. SERVICIO":
-                                ApplyButtonLayout(btnConfServicio, "CONF. SERVICIO", _imgConfCollapsed, expanded: false);
+                                ApplyButtonLayout(btnConfServicio, "CONF. SERVICIO", _imgServCollapsed, expanded: false);
                                 continue;
                             case "CLAVES CARGADAS":
                                 ApplyButtonLayout(btnclavescarga, "CLAVES CARGADAS", _imgBusCollapsed, expanded: false);
@@ -391,7 +398,7 @@ namespace botapp.Interfaces.Primarias
                 ApplyButtonLayout(btnClientes, "CLIENTES", _imgUserExpanded, expanded: true);
                 ApplyButtonLayout(btnHistorial, "HISTORIAL", _imgHistExpanded, expanded: true);
                 ApplyButtonLayout(btnConfBot, "CONFIG. BOT", _imgConfExpanded, expanded: true);
-                ApplyButtonLayout(btnConfServicio, "CONF. SERVICIO", _imgConfExpanded, expanded: true);
+                ApplyButtonLayout(btnConfServicio, "CONF. SERVICIO", _imgServExpanded, expanded: true);
                 ApplyButtonLayout(btnclavescarga, "CLAVES CARGADAS", _imgBusExpanded, expanded: true);
 
                 // 🔹 Limpiar tooltips

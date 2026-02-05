@@ -276,6 +276,9 @@
     <EmbeddedResource Include="Interfaces\Secundarias\ConfigBotInterface.resx">
       <DependentUpon>ConfigBotInterface.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Interfaces\Secundarias\ConfServicioInterface.resx">
+      <DependentUpon>ConfServicioInterface.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Interfaces\Secundarias\DescargaBotInterface.resx">
       <DependentUpon>DescargaBotInterface.cs</DependentUpon>
     </EmbeddedResource>
