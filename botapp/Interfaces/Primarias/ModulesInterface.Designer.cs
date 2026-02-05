@@ -41,6 +41,7 @@ namespace botapp.Interfaces.Primarias
             this.btnHistorial = new System.Windows.Forms.Button();
             this.btnHm = new System.Windows.Forms.Button();
             this.btnConfBot = new System.Windows.Forms.Button();
+            this.btnConfServicio = new System.Windows.Forms.Button();
             this.btnclavescarga = new System.Windows.Forms.Button();
             this.pnlsecondary = new System.Windows.Forms.Panel();
             this.pnlPrincipal.SuspendLayout();
@@ -79,6 +80,7 @@ namespace botapp.Interfaces.Primarias
             this.tableLayoutPanel1.Controls.Add(this.btnHistorial, 0, 4);
             this.tableLayoutPanel1.Controls.Add(this.btnHm, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.btnConfBot, 0, 6);
+            this.tableLayoutPanel1.Controls.Add(this.btnConfServicio, 0, 7);
             this.tableLayoutPanel1.Controls.Add(this.btnclavescarga, 0, 5);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(2, 2);
@@ -275,6 +277,25 @@ namespace botapp.Interfaces.Primarias
             this.btnConfBot.UseVisualStyleBackColor = false;
             this.btnConfBot.Click += new System.EventHandler(this.btnConfBot_Click);
             // 
+            // btnConfServicio
+            // 
+            this.btnConfServicio.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(44)))), ((int)(((byte)(62)))));
+            this.btnConfServicio.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnConfServicio.FlatAppearance.BorderSize = 0;
+            this.btnConfServicio.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(130)))), ((int)(((byte)(246)))));
+            this.btnConfServicio.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnConfServicio.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnConfServicio.ForeColor = System.Drawing.Color.White;
+            this.btnConfServicio.Location = new System.Drawing.Point(2, 226);
+            this.btnConfServicio.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnConfServicio.Name = "btnConfServicio";
+            this.btnConfServicio.Size = new System.Drawing.Size(126, 28);
+            this.btnConfServicio.TabIndex = 10;
+            this.btnConfServicio.Text = "CONF. SERVICIO";
+            this.btnConfServicio.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnConfServicio.UseVisualStyleBackColor = false;
+            this.btnConfServicio.Click += new System.EventHandler(this.btnConfServicio_Click);
+            // 
             // btnclavescarga
             // 
             this.btnclavescarga.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(44)))), ((int)(((byte)(62)))));
@@ -336,5 +357,6 @@ namespace botapp.Interfaces.Primarias
         private System.Windows.Forms.Button btnHistorial;
         private System.Windows.Forms.Button btnHm;
         private System.Windows.Forms.Button btnclavescarga;
+        private System.Windows.Forms.Button btnConfServicio;
     }
 }

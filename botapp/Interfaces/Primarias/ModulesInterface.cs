@@ -27,6 +27,7 @@ namespace botapp.Interfaces.Primarias
         public HistorialBotInterface historialBotInterface;
         public CargaBotInterface cargaBotInterface;
         public DescargaBotInterface descargaBotInterface;
+        public ConfServicioInterface confServicioInterface;
         //public ConsutaBotInterface consutaBotInterface;
 
         //logo sri
@@ -105,6 +106,7 @@ namespace botapp.Interfaces.Primarias
             clienteBotInterface = new ClienteBotInterface() { Dock = DockStyle.Fill };
             historialBotInterface = new HistorialBotInterface() { Dock = DockStyle.Fill };
             configBotInterface = new ConfigBotInterface() { Dock = DockStyle.Fill };
+            confServicioInterface = new ConfServicioInterface() { Dock = DockStyle.Fill };
             //consutaBotInterface = new ConsutaBotInterface() { Dock = DockStyle.Fill };
 
             pnlsecondary.Controls.Add(cargaBotInterface);
@@ -112,6 +114,7 @@ namespace botapp.Interfaces.Primarias
             pnlsecondary.Controls.Add(clienteBotInterface);
             pnlsecondary.Controls.Add(historialBotInterface);
             pnlsecondary.Controls.Add(configBotInterface);
+            pnlsecondary.Controls.Add(confServicioInterface);
             //pnlsecondary.Controls.Add(consutaBotInterface);
 
             //clienteBotInterface = new ClienteBotInterface();
@@ -128,6 +131,7 @@ namespace botapp.Interfaces.Primarias
                     else if (btn == btnHistorial) ApplyButtonLayout(btnHistorial, "HISTORIAL", Properties.Resources.historial_imagen, expanded: true);
                     else if (btn == btnConfBot) ApplyButtonLayout(btnConfBot, "CONFIG. BOT", Properties.Resources.config_bot, expanded: true);
                     else if (btn == btnclavescarga) ApplyButtonLayout(btnConfBot, "CLAVES CARGADAS", Properties.Resources.buscar_imagen, expanded: true);
+                    else if (btn == btnConfServicio) ApplyButtonLayout(btnConfServicio, "CONF. SERVICIO", Properties.Resources.config_bot, expanded: true);
 
                     btn.TabStop = false;
                 }
@@ -213,6 +217,12 @@ namespace botapp.Interfaces.Primarias
 
             configBotInterface.BringToFront();
             ActivarBoton(btnConfBot);
+        }
+
+        private void btnConfServicio_Click(object sender, EventArgs e)
+        {
+            confServicioInterface.BringToFront();
+            ActivarBoton(btnConfServicio);
         }
 
         private void btnClientes_Click(object sender, EventArgs e)
@@ -331,6 +341,7 @@ namespace botapp.Interfaces.Primarias
                         else if (btn == btnHistorial) toolTipSidebar.SetToolTip(btn, "Historial");
                         else if (btn == btnConfBot) toolTipSidebar.SetToolTip(btn, "Configuración Bot");
                         else if (btn == btnclavescarga) toolTipSidebar.SetToolTip(btn, "Claves cargadas");
+                        else if (btn == btnConfServicio) toolTipSidebar.SetToolTip(btn, "Conf. Servicio");
 
                         switch (btn.Text)
                         {
@@ -348,6 +359,9 @@ namespace botapp.Interfaces.Primarias
                                 continue;
                             case "CONFIG. BOT":
                                 ApplyButtonLayout(btnConfBot, "CONFIG. BOT", _imgConfCollapsed, expanded: false);
+                                continue;
+                            case "CONF. SERVICIO":
+                                ApplyButtonLayout(btnConfServicio, "CONF. SERVICIO", _imgConfCollapsed, expanded: false);
                                 continue;
                             case "CLAVES CARGADAS":
                                 ApplyButtonLayout(btnclavescarga, "CLAVES CARGADAS", _imgBusCollapsed, expanded: false);
@@ -369,6 +383,7 @@ namespace botapp.Interfaces.Primarias
                 btnClientes.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
                 btnHistorial.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
                 btnConfBot.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+                btnConfServicio.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
                 btnclavescarga.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
 
                 ApplyButtonLayout(btnCarga, "CARGA", _imgEdocExpanded, expanded: true);
@@ -376,6 +391,7 @@ namespace botapp.Interfaces.Primarias
                 ApplyButtonLayout(btnClientes, "CLIENTES", _imgUserExpanded, expanded: true);
                 ApplyButtonLayout(btnHistorial, "HISTORIAL", _imgHistExpanded, expanded: true);
                 ApplyButtonLayout(btnConfBot, "CONFIG. BOT", _imgConfExpanded, expanded: true);
+                ApplyButtonLayout(btnConfServicio, "CONF. SERVICIO", _imgConfExpanded, expanded: true);
                 ApplyButtonLayout(btnclavescarga, "CLAVES CARGADAS", _imgBusExpanded, expanded: true);
 
                 // 🔹 Limpiar tooltips

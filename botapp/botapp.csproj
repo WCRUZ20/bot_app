@@ -224,6 +224,12 @@
     <Compile Include="Interfaces\Secundarias\ConfigBotInterface.Designer.cs">
       <DependentUpon>ConfigBotInterface.cs</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\Secundarias\ConfServicioInterface.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Interfaces\Secundarias\ConfServicioInterface.Designer.cs">
+      <DependentUpon>ConfServicioInterface.cs</DependentUpon>
+    </Compile>
     <Compile Include="Interfaces\Secundarias\DescargaBotInterface.cs">
       <SubType>UserControl</SubType>
     </Compile>
