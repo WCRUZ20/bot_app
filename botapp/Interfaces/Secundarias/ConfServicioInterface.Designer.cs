@@ -34,6 +34,7 @@
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.labelFrecuencia = new System.Windows.Forms.Label();
             this.cmbFrecuencia = new System.Windows.Forms.ComboBox();
+            this.chkServicioActivo = new System.Windows.Forms.CheckBox();
             this.chkCargaAutomatica = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.labelReporte = new System.Windows.Forms.Label();
@@ -51,16 +52,18 @@
             this.tableLayoutPanel1.Controls.Add(this.lblTitulo, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.lblDescripcion, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.chkCargaAutomatica, 0, 3);
-            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 0, 4);
+            this.tableLayoutPanel1.Controls.Add(this.chkServicioActivo, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.chkCargaAutomatica, 0, 4);
+            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 0, 5);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.Padding = new System.Windows.Forms.Padding(32, 24, 32, 24);
-            this.tableLayoutPanel1.RowCount = 5;
+            this.tableLayoutPanel1.RowCount = 6;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 42F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 64F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 44F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(900, 600);
@@ -89,7 +92,7 @@
             this.lblDescripcion.Name = "lblDescripcion";
             this.lblDescripcion.Size = new System.Drawing.Size(830, 64);
             this.lblDescripcion.TabIndex = 1;
-            this.lblDescripcion.Text = "Configura la frecuencia de los procesos de descarga. Al finalizar cada descarga, la carga se ejecutará de forma automática.";
+            this.lblDescripcion.Text = "Configura cada cuántos minutos se ejecutan los procesos de descarga. Al finalizar cada descarga, la carga se ejecutará de forma automática.";
             this.lblDescripcion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // tableLayoutPanel2
@@ -117,7 +120,7 @@
             this.labelFrecuencia.Name = "labelFrecuencia";
             this.labelFrecuencia.Size = new System.Drawing.Size(214, 64);
             this.labelFrecuencia.TabIndex = 0;
-            this.labelFrecuencia.Text = "Frecuencia de descarga";
+            this.labelFrecuencia.Text = "Frecuencia (minutos)";
             this.labelFrecuencia.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // cmbFrecuencia
@@ -127,14 +130,29 @@
             this.cmbFrecuencia.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.cmbFrecuencia.FormattingEnabled = true;
             this.cmbFrecuencia.Items.AddRange(new object[] {
-            "Diario",
-            "Semanal",
-            "Mensual",
+            "15 minutos",
+            "30 minutos",
+            "60 minutos",
+            "120 minutos",
             "Personalizado"});
             this.cmbFrecuencia.Location = new System.Drawing.Point(223, 3);
             this.cmbFrecuencia.Name = "cmbFrecuencia";
             this.cmbFrecuencia.Size = new System.Drawing.Size(240, 31);
             this.cmbFrecuencia.TabIndex = 1;
+            // 
+            // 
+            // chkServicioActivo
+            // 
+            this.chkServicioActivo.AutoSize = true;
+            this.chkServicioActivo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chkServicioActivo.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
+            this.chkServicioActivo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
+            this.chkServicioActivo.Location = new System.Drawing.Point(35, 203);
+            this.chkServicioActivo.Name = "chkServicioActivo";
+            this.chkServicioActivo.Size = new System.Drawing.Size(830, 38);
+            this.chkServicioActivo.TabIndex = 3;
+            this.chkServicioActivo.Text = "Servicio activo";
+            this.chkServicioActivo.UseVisualStyleBackColor = true;
             // 
             // chkCargaAutomatica
             // 
@@ -142,10 +160,10 @@
             this.chkCargaAutomatica.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chkCargaAutomatica.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
             this.chkCargaAutomatica.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
-            this.chkCargaAutomatica.Location = new System.Drawing.Point(35, 203);
+            this.chkCargaAutomatica.Location = new System.Drawing.Point(35, 247);
             this.chkCargaAutomatica.Name = "chkCargaAutomatica";
             this.chkCargaAutomatica.Size = new System.Drawing.Size(830, 44);
-            this.chkCargaAutomatica.TabIndex = 3;
+            this.chkCargaAutomatica.TabIndex = 4;
             this.chkCargaAutomatica.Text = "Ejecutar carga automáticamente al finalizar la descarga";
             this.chkCargaAutomatica.UseVisualStyleBackColor = true;
             // 
@@ -156,7 +174,7 @@
             this.tableLayoutPanel3.Controls.Add(this.labelReporte, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.lblRutaReporte, 0, 1);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(35, 253);
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(35, 303);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 2;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 36F));
@@ -214,6 +232,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.Label labelFrecuencia;
         private System.Windows.Forms.ComboBox cmbFrecuencia;
+        private System.Windows.Forms.CheckBox chkServicioActivo;
         private System.Windows.Forms.CheckBox chkCargaAutomatica;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.Label labelReporte;
