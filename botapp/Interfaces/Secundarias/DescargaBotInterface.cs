@@ -1914,18 +1914,24 @@ namespace botapp.Interfaces.Secundarias
         {
             try
             {
-                // Ruta donde se guardará el reporte
-                string rutaReporte = Path.Combine(
-                    Helpers.Utils.ObtenerRutaDescargaPersonalizada("BOT_REPORTES"),
-                    $"Reporte_BOT_{DateTime.Now:yyyyMMdd_HHmmss}.pdf"
-                );
+                var resultados = ObtenerResultadosServicioPorCliente();
+                if (!resultados.Any())
+                {
+                    MessageBox.Show("No hay resultados para generar el reporte.",
+                        "Reporte BOT", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
 
-                GenerarReportePDF(rutaReporte);
+                var rutasGeneradas = GenerarReportePdfPorCliente(resultados);
+                string mensaje = "Reportes generados con éxito:\n" + string.Join("\n", rutasGeneradas);
 
-                MessageBox.Show($"Reporte generado con éxito:\n{rutaReporte}",
+                MessageBox.Show(mensaje,
                     "Reporte BOT", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                System.Diagnostics.Process.Start(rutaReporte);
+                if (rutasGeneradas.Count > 0)
+                {
+                    System.Diagnostics.Process.Start(rutasGeneradas[0]);
+                }
             }
             catch (Exception ex)
             {
@@ -1934,61 +1940,109 @@ namespace botapp.Interfaces.Secundarias
             }
         }
 
-        private void GenerarReportePDF(string ruta)
+        private List<ServicioClienteResultado> ObtenerResultadosServicioPorCliente()
         {
-            Document doc = new Document(PageSize.A4, 25, 25, 30, 30);
-            PdfWriter.GetInstance(doc, new FileStream(ruta, FileMode.Create));
-            doc.Open();
-
-            // Encabezado
-            var titulo = new Paragraph("📊 Reporte Final BOT")
+            List<ResultadoProcesoItem> snapshot;
+            lock (_lockResultados)
             {
-                Alignment = Element.ALIGN_CENTER
-            };
-
-            doc.Add(titulo);
-            doc.Add(new Paragraph($"Fecha: {DateTime.Now:dd/MM/yyyy HH:mm}"));
-            doc.Add(new Paragraph(" "));
-
-            // Tabla resumen desde DataGridView
-            PdfPTable tabla = new PdfPTable(grdDescarga.Columns.Count);
-            tabla.WidthPercentage = 100;
-
-            // Encabezados
-            foreach (DataGridViewColumn col in grdDescarga.Columns)
-            {
-                if (!col.Visible) continue;
-                tabla.AddCell(new PdfPCell(new Phrase(col.HeaderText))
-                { BackgroundColor = BaseColor.LIGHT_GRAY });
+                snapshot = _resultados.ToList();
             }
 
-            // Filas
-            foreach (DataGridViewRow row in grdDescarga.Rows)
+            if (!snapshot.Any())
             {
-                if (row.IsNewRow) continue;
-                foreach (DataGridViewCell cell in row.Cells)
+                return new List<ServicioClienteResultado>();
+            }
+
+            return snapshot
+                .GroupBy(x => new { x.Usuario, x.Nombre })
+                .Select(grupo => new ServicioClienteResultado
                 {
-                    if (!cell.OwningColumn.Visible) continue;
-
-                    string valor = cell.Value?.ToString() ?? "";
-                    BaseColor bgColor = BaseColor.WHITE;
-
-                    if (cell.OwningColumn.Name == "Procesado")
+                    Usuario = grupo.Key.Usuario,
+                    NombreCliente = grupo.Key.Nombre,
+                    Descargas = grupo.Select(item => new ServicioDescargaResultado
                     {
-                        if (valor == "OK" || valor == "REVISAR") bgColor = BaseColor.GREEN;
-                        else if (valor == "FALLIDO") bgColor = BaseColor.RED;
+                        MesAnio = $"{item.Mes}-{item.Anio}",
+                        TipoDocumento = item.Documento,
+                        Estado = ObtenerTextoEstado(item.Estado)
+                    }).ToList(),
+                    Carga = null
+                })
+                .ToList();
+        }
+
+        private static string ObtenerTextoEstado(EstadoResultado estado)
+        {
+            switch (estado)
+            {
+                case EstadoResultado.Exitoso:
+                    return "Descargado";
+                case EstadoResultado.SinDatos:
+                    return "Sin datos";
+                default:
+                    return "Fallido";
+            }
+        }
+
+        private List<string> GenerarReportePdfPorCliente(IEnumerable<ServicioClienteResultado> resultados)
+        {
+            var rutasGeneradas = new List<string>();
+            string reportesDir = Utils.ObtenerRutaDescargaPersonalizada("BOT_REPORTES");
+
+            foreach (var cliente in resultados)
+            {
+                string nombreSeguro = string.Join("_", (cliente.NombreCliente ?? cliente.Usuario ?? "cliente")
+                    .Split(Path.GetInvalidFileNameChars()));
+                string ruta = Path.Combine(reportesDir, $"ReporteServicio_{nombreSeguro}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
+
+                using (var stream = new FileStream(ruta, FileMode.Create, FileAccess.Write))
+                {
+                    var doc = new Document(PageSize.A4, 30, 30, 30, 30);
+                    PdfWriter.GetInstance(doc, stream);
+                    doc.Open();
+
+                    var titulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 14);
+                    var subtitulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 11);
+                    var normal = FontFactory.GetFont(FontFactory.HELVETICA, 10);
+
+                    doc.Add(new Paragraph($"Reporte servicio - {cliente.NombreCliente} ({cliente.Usuario})", titulo));
+                    doc.Add(new Paragraph($"Fecha generación: {DateTime.Now:yyyy-MM-dd HH:mm:ss}", normal));
+                    doc.Add(new Paragraph(" "));
+
+                    doc.Add(new Paragraph("Sección Descarga", subtitulo));
+                    PdfPTable tDesc = new PdfPTable(3) { WidthPercentage = 100 };
+                    tDesc.AddCell("Mes-Año");
+                    tDesc.AddCell("Tipo documento");
+                    tDesc.AddCell("Estado");
+
+                    foreach (var item in cliente.Descargas)
+                    {
+                        tDesc.AddCell(item.MesAnio);
+                        tDesc.AddCell(item.TipoDocumento);
+                        tDesc.AddCell(item.Estado);
                     }
 
-                    tabla.AddCell(new PdfPCell(new Phrase(valor))
-                    {
-                        BackgroundColor = bgColor,
-                        HorizontalAlignment = Element.ALIGN_CENTER
-                    });
+                    doc.Add(tDesc);
+                    doc.Add(new Paragraph(" "));
+
+                    doc.Add(new Paragraph("Sección Carga", subtitulo));
+                    PdfPTable tCarga = new PdfPTable(3) { WidthPercentage = 100 };
+                    tCarga.AddCell("Estado carga");
+                    tCarga.AddCell("Fecha y hora");
+                    tCarga.AddCell("Claves nuevas");
+                    tCarga.AddCell(cliente.Carga != null ? cliente.Carga.Estado : "No ejecutada");
+                    tCarga.AddCell(cliente.Carga != null && cliente.Carga.FechaHoraCarga.HasValue
+                        ? cliente.Carga.FechaHoraCarga.Value.ToString("yyyy-MM-dd HH:mm:ss")
+                        : "-");
+                    tCarga.AddCell(cliente.Carga != null ? cliente.Carga.ClavesNuevasCargadas.ToString() : "0");
+                    doc.Add(tCarga);
+
+                    doc.Close();
                 }
+
+                rutasGeneradas.Add(ruta);
             }
 
-            doc.Add(tabla);
-            doc.Close();
+            return rutasGeneradas;
         }
 
         private void CrearAnimacion()

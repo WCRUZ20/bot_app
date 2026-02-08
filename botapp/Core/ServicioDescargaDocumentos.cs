@@ -19,6 +19,7 @@ namespace botapp.Core
         private const int Reintentos = 3;
         private const int Hilos = 8;
         private const string DownloadFolderName = "Carga_Botcito";
+        private string downloadPath = "";
 
         private enum ResultadoConsulta
         {
@@ -78,7 +79,7 @@ namespace botapp.Core
             };
 
             string pageUrl = ConfigurationManager.AppSettings["SRI_LoginUrl"] ?? string.Empty;
-            bool headless = true;
+            bool headless = false;
 
             foreach (var periodo in cliente.Periodos)
             {
@@ -232,8 +233,13 @@ namespace botapp.Core
             if (!tablaCargada)
                 throw new Exception("No se cargó la tabla de comprobantes electrónicos");
 
-            string rutaBase = Utils.ObtenerRutaDescargaPersonalizada(DownloadFolderName);
-            string rutaUsuario = PrepararRutaDescarga(rutaBase, usuario, nombreUsuario);
+            //string rutaBase = Utils.ObtenerRutaDescargaPersonalizada(DownloadFolderName);
+            var basePath = ConfigurationManager.AppSettings["RutaDirectorio"];
+            if (!string.IsNullOrWhiteSpace(basePath))
+            {
+                downloadPath = Path.Combine(basePath, DownloadFolderName);
+            }
+            string rutaUsuario = PrepararRutaDescarga(downloadPath, usuario, nombreUsuario);
 
             var download = await session.Page.RunAndWaitForDownloadAsync(async () =>
             {

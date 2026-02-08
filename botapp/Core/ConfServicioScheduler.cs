@@ -19,6 +19,9 @@ namespace botapp.Core
         private readonly string _apiKey;
         private Timer _timer;
         private readonly SemaphoreSlim _gate = new SemaphoreSlim(1, 1);
+        private readonly object _stateLock = new object();
+        private ServicioConfEjecucion _confActual;
+        private DateTime? _ultimaEjecucionProgramada;
 
         public ConfServicioScheduler(string supabaseUrl, string apiKey)
         {
@@ -32,25 +35,57 @@ namespace botapp.Core
             if (!conf.ServicioActivo)
                 return;
 
-            var intervalo = Math.Max(conf.FrecuenciaMinutos, 1);
-            _timer = new Timer(async _ => await Tick(conf), null, TimeSpan.Zero, TimeSpan.FromMinutes(intervalo));
+            lock (_stateLock)
+            {
+                _confActual = conf;
+                _ultimaEjecucionProgramada = null;
+            }
+
+            _timer = new Timer(async _ => await Tick(), null, TimeSpan.Zero, TimeSpan.FromSeconds(20));
+
         }
 
         public void Stop()
         {
             _timer?.Dispose();
             _timer = null;
+
+            lock (_stateLock)
+            {
+                _confActual = null;
+                _ultimaEjecucionProgramada = null;
+            }
         }
 
-        private async Task Tick(ServicioConfEjecucion conf)
+        private async Task Tick()
         {
             if (!_gate.Wait(0))
                 return;
 
             try
             {
-                if (!DebeEjecutar(conf, DateTime.Now))
+                ServicioConfEjecucion conf;
+                DateTime? ultimaEjecucion;
+                lock (_stateLock)
+                {
+                    conf = _confActual;
+                    ultimaEjecucion = _ultimaEjecucionProgramada;
+                }
+
+                if (conf == null)
                     return;
+
+                DateTime instanteProgramado;
+                if (!DebeEjecutar(conf, DateTime.Now, out instanteProgramado))
+                    return;
+
+                if (ultimaEjecucion.HasValue && ultimaEjecucion.Value == instanteProgramado)
+                    return;
+
+                lock (_stateLock)
+                {
+                    _ultimaEjecucionProgramada = instanteProgramado;
+                }
 
                 var helper = new SupabaseDbHelper(_supabaseUrl, _apiKey);
                 DataTable clientes = await helper.GetClientesBotAsync();
@@ -85,18 +120,57 @@ namespace botapp.Core
             }
         }
 
-        private static bool DebeEjecutar(ServicioConfEjecucion conf, DateTime ahora)
+        private static bool DebeEjecutar(ServicioConfEjecucion conf, DateTime ahora, out DateTime instanteProgramado)
         {
-            if (!conf.DiasActivos.Contains(ahora.DayOfWeek))
+            instanteProgramado = DateTime.MinValue;
+
+            if (conf.DiasActivos == null || conf.DiasActivos.Count == 0)
                 return false;
 
-            TimeSpan actual = ahora.TimeOfDay;
+            var ahoraMinuto = new DateTime(ahora.Year, ahora.Month, ahora.Day, ahora.Hour, ahora.Minute, 0);
+            var horaActual = ahora.TimeOfDay;
+            DateTime ancla;
+            DayOfWeek diaProgramado;
+
             if (conf.HoraInicio <= conf.HoraFin)
             {
-                return actual >= conf.HoraInicio && actual <= conf.HoraFin;
+                if (horaActual < conf.HoraInicio || horaActual > conf.HoraFin)
+                    return false;
+
+                diaProgramado = ahora.DayOfWeek;
+                ancla = ahora.Date.Add(conf.HoraInicio);
+            }
+            else
+            {
+                if (horaActual >= conf.HoraInicio)
+                {
+                    diaProgramado = ahora.DayOfWeek;
+                    ancla = ahora.Date.Add(conf.HoraInicio);
+                }
+                else if (horaActual <= conf.HoraFin)
+                {
+                    ancla = ahora.Date.AddDays(-1).Add(conf.HoraInicio);
+                    diaProgramado = ancla.DayOfWeek;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
-            return actual >= conf.HoraInicio || actual <= conf.HoraFin;
+            if (!conf.DiasActivos.Contains(diaProgramado))
+                return false;
+
+            int frecuencia = Math.Max(conf.FrecuenciaMinutos, 1);
+            int minutosDesdeInicio = (int)(ahoraMinuto - ancla).TotalMinutes;
+            if (minutosDesdeInicio < 0)
+                return false;
+
+            if (minutosDesdeInicio % frecuencia != 0)
+                return false;
+
+            instanteProgramado = ahoraMinuto;
+            return true;
         }
 
         private static void GenerarReportePdfPorCliente(IEnumerable<ServicioClienteResultado> resultados)
