@@ -1,4 +1,6 @@
-﻿using System;
+﻿using botapp.Core;
+using botapp.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
@@ -14,10 +16,15 @@ namespace botapp.Interfaces.Secundarias
 {
     public partial class ConfServicioInterface : UserControl
     {
+        private const string SupabaseUrl = "https://hgwbwaisngbyzaatwndb.supabase.co";
+        private const string ApiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhnd2J3YWlzbmdieXphYXR3bmRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNDIwMDYsImV4cCI6MjA3MjYxODAwNn0.WgHmnqOwKCvzezBM1n82oSpAMYCT5kNCb8cLGRMIsbk";
+        private static readonly ConfServicioScheduler Scheduler = new ConfServicioScheduler(SupabaseUrl, ApiKey);
+
         public ConfServicioInterface()
         {
             InitializeComponent();
             CargarConfiguracion();
+            AplicarPlanificacionServicio();
         }
 
         private void CargarConfiguracion()
@@ -104,6 +111,37 @@ namespace botapp.Interfaces.Secundarias
 
             MessageBox.Show("Configuración del servicio guardada correctamente.", "Configuración",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            AplicarPlanificacionServicio();
         }
+
+        private void AplicarPlanificacionServicio()
+        {
+            var conf = new ServicioConfEjecucion
+            {
+                ServicioActivo = chkServicioActivo.Checked,
+                CargaAutomatica = chkCargaAutomatica.Checked,
+                FrecuenciaMinutos = (int)nudFrecuencia.Value,
+                HoraInicio = dtpHoraInicio.Value.TimeOfDay,
+                HoraFin = dtpHoraFin.Value.TimeOfDay,
+                DiasActivos = ConstruirDiasActivos()
+            };
+
+            Scheduler.StartOrUpdate(conf);
+        }
+
+        private HashSet<DayOfWeek> ConstruirDiasActivos()
+        {
+            var dias = new HashSet<DayOfWeek>();
+            if (chkLunes.Checked) dias.Add(DayOfWeek.Monday);
+            if (chkMartes.Checked) dias.Add(DayOfWeek.Tuesday);
+            if (chkMiercoles.Checked) dias.Add(DayOfWeek.Wednesday);
+            if (chkJueves.Checked) dias.Add(DayOfWeek.Thursday);
+            if (chkViernes.Checked) dias.Add(DayOfWeek.Friday);
+            if (chkSabado.Checked) dias.Add(DayOfWeek.Saturday);
+            if (chkDomingo.Checked) dias.Add(DayOfWeek.Sunday);
+            return dias;
+        }
+
     }
 }
