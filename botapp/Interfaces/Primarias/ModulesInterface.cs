@@ -89,8 +89,8 @@ namespace botapp.Interfaces.Primarias
             _imgConfExpanded = ScaleToFit(Properties.Resources.config_bot, 26, 26);
             _imgConfCollapsed = ScaleToFit(Properties.Resources.config_bot, 30, 30);
 
-            _imgServExpanded = ScaleToFit(Properties.Resources.reloj_logo, 26, 26);
-            _imgServCollapsed = ScaleToFit(Properties.Resources.reloj_logo, 30, 30);
+            _imgServExpanded = ScaleToFit(Properties.Resources.logo_reloj_tuerca, 26, 26);
+            _imgServCollapsed = ScaleToFit(Properties.Resources.logo_reloj_tuerca, 30, 30);
 
             _username = userName;
             lbluser.Text = $"USUARIO: {userName}";
@@ -138,7 +138,7 @@ namespace botapp.Interfaces.Primarias
                     else if (btn == btnHistorial) ApplyButtonLayout(btnHistorial, "HISTORIAL", Properties.Resources.historial_imagen, expanded: true);
                     else if (btn == btnConfBot) ApplyButtonLayout(btnConfBot, "CONFIG. BOT", Properties.Resources.config_bot, expanded: true);
                     else if (btn == btnclavescarga) ApplyButtonLayout(btnConfBot, "CLAVES CARGADAS", Properties.Resources.buscar_imagen, expanded: true);
-                    else if (btn == btnConfServicio) ApplyButtonLayout(btnConfServicio, "CONF. SERVICIO", Properties.Resources.reloj_logo, expanded: true);
+                    else if (btn == btnConfServicio) ApplyButtonLayout(btnConfServicio, "CONF. SERVICIO", Properties.Resources.logo_reloj_tuerca, expanded: true);
 
                     btn.TabStop = false;
                 }
