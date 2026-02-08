@@ -1,7 +1,11 @@
-﻿using botapp.Helpers;
+﻿using botapp.Automation;
+using botapp.Automation.Models;
+using botapp.Helpers;
 using botapp.Models;
+using Microsoft.Playwright;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -14,62 +18,93 @@ namespace botapp.Core
     {
         private const int Reintentos = 3;
         private const int Hilos = 8;
+        private const string DownloadFolderName = "Carga_Botcito";
 
-        public Task<List<ServicioClienteResultado>> EjecutarAsync(DataTable clientes)
+        private enum ResultadoConsulta
         {
-            if (clientes == null)
-                return Task.FromResult(new List<ServicioClienteResultado>());
-
-            var resultados = new List<ServicioClienteResultado>();
-            var sync = new object();
-
-            var opciones = new ParallelOptions { MaxDegreeOfParallelism = Hilos };
-            Parallel.ForEach(clientes.AsEnumerable(), opciones, row =>
-            {
-                if (!EsTrue(row["descarga"]))
-                    return;
-
-                var resultado = ProcesarCliente(row);
-                lock (sync)
-                {
-                    resultados.Add(resultado);
-                }
-            });
-
-            return Task.FromResult(resultados.OrderBy(x => x.NombreCliente).ToList());
+            Descargado,
+            SinDatos
         }
 
-        private ServicioClienteResultado ProcesarCliente(DataRow row)
+        private sealed class ClienteProcesable
         {
-            string usuario = row["usuario"].ToString();
-            string nombre = row["NombUsuario"].ToString();
-            int mesesAnte = TryInt(row.Table.Columns.Contains("meses_ante") ? row["meses_ante"] : null, 0);
-            bool incluirMesActual = !row.Table.Columns.Contains("consultar_mes_actual") || EsTrue(row["consultar_mes_actual"]);
+            public string Usuario { get; set; }
+            public string Nombre { get; set; }
+            public string CiAdicional { get; set; }
+            public string Password { get; set; }
+            public List<DateTime> Periodos { get; set; }
+            public List<TipoComprobante> Tipos { get; set; }
+        }
 
-            var tipos = new List<string>();
-            AgregarTipoSiAplica(tipos, row, "factura", "Factura");
-            AgregarTipoSiAplica(tipos, row, "notacredito", "Nota de Crédito");
-            AgregarTipoSiAplica(tipos, row, "retencion", "Retención");
-            AgregarTipoSiAplica(tipos, row, "liquidacioncompra", "Liquidación de compra");
-            AgregarTipoSiAplica(tipos, row, "notadebito", "Nota de Débito");
+        public async Task<List<ServicioClienteResultado>> EjecutarAsync(DataTable clientes)
+        {
+            if (clientes == null)
+                return new List<ServicioClienteResultado>();
 
-            var mesesConsulta = ConstruirMesesConsulta(mesesAnte, incluirMesActual);
+            var clientesProcesables = ConstruirClientesProcesables(clientes);
+            var resultados = new List<ServicioClienteResultado>();
+            var sync = new object();
+            using (var gate = new SemaphoreSlim(Hilos))
+            {
+                var tareas = clientesProcesables.Select(async cliente =>
+                {
+                    await gate.WaitAsync();
+                    try
+                    {
+                        var resultado = await ProcesarClienteAsync(cliente);
+                        lock (sync)
+                        {
+                            resultados.Add(resultado);
+                        }
+                    }
+                    finally
+                    {
+                        gate.Release();
+                    }
+                }).ToList();
 
+                await Task.WhenAll(tareas);
+            }
+
+            return resultados.OrderBy(x => x.NombreCliente).ToList();
+        }
+
+        private async Task<ServicioClienteResultado> ProcesarClienteAsync(ClienteProcesable cliente)
+        {
             var resultadoCliente = new ServicioClienteResultado
             {
-                Usuario = usuario,
-                NombreCliente = nombre
+                Usuario = cliente.Usuario,
+                NombreCliente = cliente.Nombre
             };
 
-            foreach (var tipo in tipos)
+            string pageUrl = ConfigurationManager.AppSettings["SRI_LoginUrl"] ?? string.Empty;
+            bool headless = true;
+
+            foreach (var periodo in cliente.Periodos)
             {
-                foreach (var fecha in mesesConsulta)
+                foreach (var tipo in cliente.Tipos)
                 {
-                    string estado = DeterminarEstadoDescargaConReintento(usuario, nombre, tipo, fecha);
+                    var parametros = new ParametrosConsulta
+                    {
+                        Anio = periodo.Year.ToString(),
+                        Mes = periodo.Month.ToString(),
+                        Dia = "0",
+                        Tipo = tipo
+                    };
+
+                    string estado = await EjecutarProcesoConReintentosAsync(
+                        pageUrl,
+                        headless,
+                        cliente.Usuario,
+                        cliente.CiAdicional,
+                        cliente.Password,
+                        cliente.Nombre,
+                        parametros);
+
                     resultadoCliente.Descargas.Add(new ServicioDescargaResultado
                     {
-                        MesAnio = fecha.ToString("MM-yyyy"),
-                        TipoDocumento = tipo,
+                        MesAnio = periodo.ToString("MM-yyyy"),
+                        TipoDocumento = tipo.Nombre ?? tipo.Value,
                         Estado = estado
                     });
                 }
@@ -78,71 +113,358 @@ namespace botapp.Core
             return resultadoCliente;
         }
 
-        private static string DeterminarEstadoDescargaConReintento(string usuario, string nombre, string tipo, DateTime fecha)
+        private async Task<string> EjecutarProcesoConReintentosAsync(string pageUrl, bool headless, string usuario, string ciAdicional, string password, string nombre, ParametrosConsulta parametros)
         {
             for (int intento = 1; intento <= Reintentos; intento++)
             {
                 try
                 {
-                    string carpeta = Utils.ObtenerRutaDescargaPersonalizada($"{usuario} - {nombre}");
-                    if (!Directory.Exists(carpeta))
+                    var resultado = await EjecutarProcesoAsyncPorCliente(pageUrl, headless, usuario, ciAdicional, password, nombre, parametros);
+                    if (resultado == ResultadoConsulta.SinDatos)
                         return "Sin datos";
 
-                    string mes = fecha.ToString("MM");
-                    string anio = fecha.ToString("yyyy");
-                    var archivos = Directory.GetFiles(carpeta, "*", SearchOption.AllDirectories)
-                        .Where(x => Contiene(x, tipo) && Contiene(x, mes) && Contiene(x, anio))
-                        .ToList();
-
-                    if (archivos.Count > 0)
-                        return "Exitoso";
-
-                    return "Sin datos";
+                    return "Exitoso";
                 }
                 catch
                 {
                     if (intento == Reintentos)
                         return "Fallido";
-                    Thread.Sleep(250);
+
+                    await Task.Delay(250);
                 }
             }
 
             return "Fallido";
         }
 
-        private static bool Contiene(string valor, string texto)
+        private async Task<ResultadoConsulta> EjecutarProcesoAsyncPorCliente(string pageUrl, bool headless, string usuario, string ciAdicional, string password, string nombre, ParametrosConsulta parametros)
         {
-            return valor.IndexOf(texto, StringComparison.OrdinalIgnoreCase) >= 0;
+            PlaywrightManager manager = null;
+            BrowserSession session = null;
+
+            try
+            {
+                var config = new BrowserConfig
+                {
+                    Url = pageUrl,
+                    Headless = headless
+                };
+
+                manager = new PlaywrightManager();
+                await manager.InitializeAsync(config);
+
+                session = new BrowserSession(manager.Browser, config);
+                await session.StartAsync();
+
+                var actions = new PageActions(session.Page);
+                await IniciarSesionAsync(session, actions, usuario, ciAdicional, password);
+
+                return await EjecutarConsultaYDescargaAsync(session, actions, parametros, usuario, nombre);
+            }
+            finally
+            {
+                if (session != null)
+                {
+                    try
+                    {
+                        await CerrarSesionAsync(session);
+                    }
+                    catch
+                    {
+                    }
+
+                    await session.DisposeAsync();
+                }
+
+                if (manager != null)
+                    await manager.DisposeAsync();
+            }
         }
 
-        private static List<DateTime> ConstruirMesesConsulta(int mesesAnte, bool incluirMesActual)
+        private static async Task IniciarSesionAsync(BrowserSession session, PageActions actions, string usuario, string ciAdicional, string password)
         {
-            var salida = new List<DateTime>();
-            var baseMes = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            int maxBack = Math.Max(mesesAnte, 0);
-            int inicio = incluirMesActual ? 0 : 1;
-
-            for (int i = inicio; i <= maxBack; i++)
+            await session.Page.WaitForSelectorAsync("#usuario", new PageWaitForSelectorOptions
             {
-                salida.Add(baseMes.AddMonths(-i));
-            }
+                State = WaitForSelectorState.Visible
+            });
 
-            if (salida.Count == 0)
-                salida.Add(baseMes);
+            await actions.SetTextAsync("#usuario", usuario);
+            await actions.SetTextAsync("#ciAdicional", ciAdicional);
+            await actions.SetTextAsync("#password", password);
+            await actions.ClickAsync("#kc-login");
+
+            await session.Page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+            await session.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
+            bool loginExitoso = await WaitHelper.ExistsAsync(session.Page, "a[tooltip='Cerrar sesión']", 25000);
+            if (!loginExitoso)
+                throw new Exception("No se detectó el botón Cerrar sesión (login fallido)");
+        }
+
+        private static async Task CerrarSesionAsync(BrowserSession session)
+        {
+            bool existeCerrarSesion = await WaitHelper.ExistsAsync(session.Page, "a[tooltip='Cerrar sesión']", 5000);
+            if (!existeCerrarSesion)
+                return;
+
+            await session.Page.ClickAsync("a[tooltip='Cerrar sesión']");
+            await session.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        }
+
+        private async Task<ResultadoConsulta> EjecutarConsultaYDescargaAsync(BrowserSession session, PageActions actions, ParametrosConsulta parametros, string usuario, string nombreUsuario)
+        {
+            await actions.SelectAsync("#frmPrincipal\\:ano", parametros.Anio);
+            await actions.SelectAsync("#frmPrincipal\\:mes", parametros.Mes);
+            await actions.SelectAsync("#frmPrincipal\\:dia", parametros.Dia);
+            await actions.SelectAsync("#frmPrincipal\\:cmbTipoComprobante", parametros.Tipo.Value);
+
+            await actions.ClickAsync("#frmPrincipal\\:btnBuscar");
+
+            bool captchaincorrecta = await WaitHelper.ExistsAsync(session.Page, "text=Captcha incorrecta", 3000);
+            if (captchaincorrecta)
+                await ConsultarConRecuperacionCaptchaAsync(session.Page, actions, "#frmPrincipal\\:btnBuscar");
+
+            bool sinDatos = await WaitHelper.ExistsAsync(session.Page, "text=No existen datos", 3000);
+            if (sinDatos)
+                return ResultadoConsulta.SinDatos;
+
+            bool tablaCargada = await WaitHelper.ExistsAsync(session.Page, "#frmPrincipal\\:tablaCompRecibidos", 10000);
+            if (!tablaCargada)
+                throw new Exception("No se cargó la tabla de comprobantes electrónicos");
+
+            string rutaBase = Utils.ObtenerRutaDescargaPersonalizada(DownloadFolderName);
+            string rutaUsuario = PrepararRutaDescarga(rutaBase, usuario, nombreUsuario);
+
+            var download = await session.Page.RunAndWaitForDownloadAsync(async () =>
+            {
+                await actions.ClickAsync("#frmPrincipal\\:lnkTxtlistado");
+            });
+
+            string extension = Path.GetExtension(download.SuggestedFilename);
+            string nombreArchivo = $"{parametros.Tipo.PrefijoArchivo}_{parametros.Mes.PadLeft(2, '0')}_{parametros.Anio}{extension}";
+            string rutaFinal = Path.Combine(rutaUsuario, nombreArchivo);
+
+            await download.SaveAsAsync(rutaFinal);
+            return ResultadoConsulta.Descargado;
+        }
+
+        private static string PrepararRutaDescarga(string basePath, string usuario, string nombre)
+        {
+            string userFolder = Path.Combine(basePath, $"{usuario} - {nombre}");
+            if (!Directory.Exists(userFolder))
+                Directory.CreateDirectory(userFolder);
+
+            return userFolder;
+        }
+
+        private static async Task ConsultarConRecuperacionCaptchaAsync(IPage page, PageActions actions, string btnBuscarSelector)
+        {
+            await actions.ClickAsync(btnBuscarSelector);
+            await page.WaitForTimeoutAsync(6000);
+
+            bool captchaIncorrecta = await ExisteCaptchaIncorrectaAsync(page, 6000);
+            if (!captchaIncorrecta)
+                return;
+
+            var estrategias = ConstruirEstrategiasForzadas(btnBuscarSelector);
+            for (int i = 0; i < estrategias.Count; i++)
+            {
+                await page.WaitForTimeoutAsync(6000);
+                await estrategias[i](page);
+                await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+                await page.WaitForTimeoutAsync(9000);
+
+                captchaIncorrecta = await ExisteCaptchaIncorrectaAsync(page, 1200);
+                if (!captchaIncorrecta)
+                    return;
+            }
+        }
+
+        private static async Task<bool> ExisteCaptchaIncorrectaAsync(IPage page, int timeoutMs)
+        {
+            try
+            {
+                var locator = page.Locator("text=/captcha\\s+incorrecta/i");
+                await locator.First.WaitForAsync(new LocatorWaitForOptions
+                {
+                    Timeout = timeoutMs,
+                    State = WaitForSelectorState.Visible
+                });
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static List<Func<IPage, Task>> ConstruirEstrategiasForzadas(string btnBuscarSelector)
+        {
+            return new List<Func<IPage, Task>>
+            {
+                async page =>
+                {
+                    await page.EvaluateAsync(@"(sel) => {
+                        const el = document.querySelector(sel);
+                        if (!el) return;
+                        el.scrollIntoView({ block: 'center', inline: 'center' });
+                        el.focus();
+                    }", btnBuscarSelector);
+
+                    await page.ClickAsync(btnBuscarSelector, new PageClickOptions { Force = true, Timeout = 5000 });
+                },
+                async page =>
+                {
+                    await page.EvaluateAsync(@"(sel) => {
+                        const el = document.querySelector(sel);
+                        if (!el) return;
+                        el.scrollIntoView({ block: 'center', inline: 'center' });
+                        el.click();
+                    }", btnBuscarSelector);
+                },
+                async page =>
+                {
+                    await page.EvaluateAsync(@"(sel) => {
+                        const el = document.querySelector(sel);
+                        if (!el) return;
+                        el.scrollIntoView({ block: 'center', inline: 'center' });
+
+                        const fire = (type) => el.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }));
+                        fire('mousedown');
+                        fire('mouseup');
+                        fire('click');
+                    }", btnBuscarSelector);
+                },
+                async page =>
+                {
+                    await page.FocusAsync(btnBuscarSelector);
+                    await page.Keyboard.PressAsync("Enter");
+                },
+                async page =>
+                {
+                    await page.EvaluateAsync(@"(sel) => {
+                        const el = document.querySelector(sel);
+                        if (!el) return;
+
+                        const form = el.closest('form');
+                        if (!form) return;
+
+                        if (typeof form.requestSubmit === 'function') {
+                            form.requestSubmit();
+                        } else {
+                            form.submit();
+                        }
+                    }", btnBuscarSelector);
+                },
+                async page =>
+                {
+                    await page.EvaluateAsync(@"(sel) => {
+                        const el = document.querySelector(sel);
+                        if (!el) return;
+
+                        const onclick = el.getAttribute('onclick') || '';
+                        if (onclick.includes('PrimeFaces.ab')) {
+                            try { eval(onclick); } catch (e) {}
+                        } else {
+                            el.click();
+                        }
+                    }", btnBuscarSelector);
+                },
+            };
+        }
+
+        private List<ClienteProcesable> ConstruirClientesProcesables(DataTable clientes)
+        {
+            var salida = new List<ClienteProcesable>();
+
+            foreach (DataRow row in clientes.Rows)
+            {
+                if (!EsValorYN(row, "Activo") || !EsValorYN(row, "descarga"))
+                    continue;
+
+                salida.Add(new ClienteProcesable
+                {
+                    Usuario = ObtenerTexto(row, "usuario"),
+                    Nombre = ObtenerTexto(row, "NombUsuario"),
+                    CiAdicional = ObtenerTexto(row, "ci_adicional"),
+                    Password = ObtenerTexto(row, "clave"),
+                    Periodos = ConstruirPeriodosConsulta(row).ToList(),
+                    Tipos = ObtenerTiposHabilitados(row).ToList()
+                });
+            }
 
             return salida;
         }
 
-        private static void AgregarTipoSiAplica(List<string> tipos, DataRow row, string campo, string nombre)
+        private IEnumerable<DateTime> ConstruirPeriodosConsulta(DataRow row)
         {
-            if (row.Table.Columns.Contains(campo) && EsTrue(row[campo]))
-                tipos.Add(nombre);
+            DateTime hoy = DateTime.Today;
+            DateTime inicioMes = new DateTime(hoy.Year, hoy.Month, 1);
+            var periodos = new List<DateTime>();
+
+            if (EsValorYN(row, "consultar_mes_actual"))
+                periodos.Add(inicioMes);
+
+            int mesesAnteriores = ObtenerEntero(row, "meses_ante");
+            int diasPermitidos = ObtenerEntero(row, "dias");
+
+            if (mesesAnteriores > 0 && (hoy.Day <= diasPermitidos || diasPermitidos == 0))
+            {
+                for (int i = 1; i <= mesesAnteriores; i++)
+                    periodos.Add(inicioMes.AddMonths(-i));
+            }
+
+            return periodos;
         }
 
-        private static int TryInt(object valor, int porDefecto)
+        private IEnumerable<TipoComprobante> ObtenerTiposHabilitados(DataRow row)
         {
-            int parsed;
-            return int.TryParse(valor == null ? string.Empty : valor.ToString(), out parsed) ? parsed : porDefecto;
+            var tipos = new Dictionary<string, string>
+            {
+                { "factura", "1" },
+                { "liquidacioncompra", "2" },
+                { "notacredito", "3" },
+                { "notadebito", "4" },
+                { "retencion", "6" }
+            };
+
+            foreach (var tipo in tipos)
+            {
+                if (!EsValorYN(row, tipo.Key))
+                    continue;
+
+                var encontrado = CatalogoComprobantes.ObtenerPorValue(tipo.Value);
+                if (encontrado != null)
+                    yield return encontrado;
+            }
+        }
+
+        private static string ObtenerTexto(DataRow row, string nombreColumna)
+        {
+            if (!row.Table.Columns.Contains(nombreColumna))
+                return string.Empty;
+
+            return row[nombreColumna]?.ToString() ?? string.Empty;
+        }
+
+        private static int ObtenerEntero(DataRow row, string columnName)
+        {
+            if (!row.Table.Columns.Contains(columnName))
+                return 0;
+
+            if (int.TryParse(row[columnName]?.ToString(), out int valor))
+                return valor;
+
+            return 0;
+        }
+
+        private static bool EsValorYN(DataRow row, string columnName)
+        {
+            if (!row.Table.Columns.Contains(columnName))
+                return false;
+
+            return EsTrue(row[columnName]);
         }
 
         private static bool EsTrue(object valor)
@@ -151,6 +473,7 @@ namespace botapp.Core
                 || string.Equals(valor == null ? string.Empty : valor.ToString(), "true", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(valor == null ? string.Empty : valor.ToString(), "1", StringComparison.OrdinalIgnoreCase);
         }
+
     }
 }
 
