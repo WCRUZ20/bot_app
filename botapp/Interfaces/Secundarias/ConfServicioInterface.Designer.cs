@@ -466,6 +466,7 @@
             this.btnGuardar.TabIndex = 8;
             this.btnGuardar.Text = "GUARDAR 💾";
             this.btnGuardar.UseVisualStyleBackColor = false;
+            this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
             // 
             // tableLayoutPanel2
             // 
