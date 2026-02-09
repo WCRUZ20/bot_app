@@ -107,7 +107,7 @@ namespace botapp.Core
                     }
                 }
 
-                GenerarReportePdfPorCliente(resultados);
+                GenerarReportePdfResumen(resultados);
             }
             catch (Exception ex)
             {
@@ -173,59 +173,108 @@ namespace botapp.Core
             return true;
         }
 
-        private static void GenerarReportePdfPorCliente(IEnumerable<ServicioClienteResultado> resultados)
+        private static void GenerarReportePdfResumen(IEnumerable<ServicioClienteResultado> resultados)
         {
             string reportesDir = Utils.ObtenerRutaDescargaPersonalizada("BOT_REPORTES");
+            string ruta = Path.Combine(reportesDir, $"{DateTime.Now:yyyyMMdd_HHmmss}_resumenbot.pdf");
 
-            foreach (var cliente in resultados)
+            using (var stream = new FileStream(ruta, FileMode.Create, FileAccess.Write))
             {
-                string nombreSeguro = string.Join("_", (cliente.NombreCliente ?? cliente.Usuario ?? "cliente")
-                    .Split(Path.GetInvalidFileNameChars()));
-                string ruta = Path.Combine(reportesDir, $"ReporteServicio_{nombreSeguro}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
+                var doc = new Document(PageSize.A4.Rotate(), 30, 30, 30, 30);
+                PdfWriter.GetInstance(doc, stream);
+                doc.Open();
 
-                using (var stream = new FileStream(ruta, FileMode.Create, FileAccess.Write))
+                var titulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 14);
+                var subtitulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 11);
+                var normal = FontFactory.GetFont(FontFactory.HELVETICA, 9);
+
+                var clientes = (resultados ?? Enumerable.Empty<ServicioClienteResultado>()).ToList();
+
+                doc.Add(new Paragraph("Reporte resumen del servicio (todos los clientes)", titulo));
+                doc.Add(new Paragraph($"Fecha generación: {DateTime.Now:yyyy-MM-dd HH:mm:ss}", normal));
+                doc.Add(new Paragraph(" "));
+
+                doc.Add(new Paragraph("Sección Descarga", subtitulo));
+                PdfPTable tDesc = new PdfPTable(6) { WidthPercentage = 100 };
+                tDesc.SetWidths(new float[] { 2.3f, 1.7f, 1.2f, 1.6f, 1.2f, 1.2f });
+                tDesc.AddCell("Cliente");
+                tDesc.AddCell("Usuario");
+                tDesc.AddCell("Mes-Año");
+                tDesc.AddCell("Tipo documento");
+                tDesc.AddCell("Estado");
+                tDesc.AddCell("Carga");
+
+                foreach (var cliente in clientes)
                 {
-                    var doc = new Document(PageSize.A4, 30, 30, 30, 30);
-                    PdfWriter.GetInstance(doc, stream);
-                    doc.Open();
+                    var descargas = cliente.Descargas != null && cliente.Descargas.Count > 0
+                        ? cliente.Descargas
+                        : new List<ServicioDescargaResultado>
+                        {
+                            new ServicioDescargaResultado
+                            {
+                                MesAnio = "-",
+                                TipoDocumento = "-",
+                                Estado = "Sin datos"
+                            }
+                        };
 
-                    var titulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 14);
-                    var subtitulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 11);
-                    var normal = FontFactory.GetFont(FontFactory.HELVETICA, 10);
-
-                    doc.Add(new Paragraph($"Reporte servicio - {cliente.NombreCliente} ({cliente.Usuario})", titulo));
-                    doc.Add(new Paragraph($"Fecha generación: {DateTime.Now:yyyy-MM-dd HH:mm:ss}", normal));
-                    doc.Add(new Paragraph(" "));
-
-                    doc.Add(new Paragraph("Sección Descarga", subtitulo));
-                    PdfPTable tDesc = new PdfPTable(3) { WidthPercentage = 100 };
-                    tDesc.AddCell("Mes-Año");
-                    tDesc.AddCell("Tipo documento");
-                    tDesc.AddCell("Estado");
-                    foreach (var item in cliente.Descargas)
+                    foreach (var item in descargas)
                     {
-                        tDesc.AddCell(item.MesAnio);
-                        tDesc.AddCell(item.TipoDocumento);
-                        tDesc.AddCell(item.Estado);
+                        tDesc.AddCell(cliente.NombreCliente ?? "-");
+                        tDesc.AddCell(cliente.Usuario ?? "-");
+                        tDesc.AddCell(item.MesAnio ?? "-");
+                        tDesc.AddCell(item.TipoDocumento ?? "-");
+                        tDesc.AddCell(CrearCeldaEstado(item.Estado));
+                        tDesc.AddCell(CrearCeldaEstado(cliente.Carga != null ? cliente.Carga.Estado : "Sin datos"));
                     }
-                    doc.Add(tDesc);
-                    doc.Add(new Paragraph(" "));
+                }
 
-                    doc.Add(new Paragraph("Sección Carga", subtitulo));
-                    PdfPTable tCarga = new PdfPTable(3) { WidthPercentage = 100 };
-                    tCarga.AddCell("Estado carga");
-                    tCarga.AddCell("Fecha y hora");
-                    tCarga.AddCell("Claves nuevas");
-                    tCarga.AddCell(cliente.Carga != null ? cliente.Carga.Estado : "No ejecutada");
+                doc.Add(tDesc);
+                doc.Add(new Paragraph(" "));
+
+                doc.Add(new Paragraph("Sección Carga", subtitulo));
+                PdfPTable tCarga = new PdfPTable(5) { WidthPercentage = 100 };
+                tCarga.SetWidths(new float[] { 2.6f, 2f, 1.5f, 2f, 1.5f });
+                tCarga.AddCell("Cliente");
+                tCarga.AddCell("Usuario");
+                tCarga.AddCell("Estado carga");
+                tCarga.AddCell("Fecha y hora");
+                tCarga.AddCell("Claves nuevas");
+
+                foreach (var cliente in clientes)
+                {
+                    tCarga.AddCell(cliente.NombreCliente ?? "-");
+                    tCarga.AddCell(cliente.Usuario ?? "-");
+                    tCarga.AddCell(CrearCeldaEstado(cliente.Carga != null ? cliente.Carga.Estado : "Sin datos"));
                     tCarga.AddCell(cliente.Carga != null && cliente.Carga.FechaHoraCarga.HasValue
                         ? cliente.Carga.FechaHoraCarga.Value.ToString("yyyy-MM-dd HH:mm:ss")
                         : "-");
                     tCarga.AddCell(cliente.Carga != null ? cliente.Carga.ClavesNuevasCargadas.ToString() : "0");
-                    doc.Add(tCarga);
-
-                    doc.Close();
                 }
+
+                doc.Add(tCarga);
+                doc.Close();
             }
+        }
+
+        private static PdfPCell CrearCeldaEstado(string estado)
+        {
+            string valor = string.IsNullOrWhiteSpace(estado) ? "Sin datos" : estado.Trim();
+            BaseColor color = BaseColor.LIGHT_GRAY;
+
+            if (valor.Equals("Exitoso", StringComparison.OrdinalIgnoreCase))
+                color = new BaseColor(198, 239, 206);
+            else if (valor.Equals("Fallido", StringComparison.OrdinalIgnoreCase))
+                color = new BaseColor(255, 199, 206);
+            else if (valor.Equals("Sin datos", StringComparison.OrdinalIgnoreCase))
+                color = new BaseColor(217, 217, 217);
+
+            return new PdfPCell(new Phrase(valor))
+            {
+                BackgroundColor = color,
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_MIDDLE
+            };
         }
 
         public void Dispose()
