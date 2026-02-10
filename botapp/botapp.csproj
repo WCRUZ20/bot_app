@@ -186,6 +186,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Helpers\ConfigManager.cs" />
+    <Compile Include="Helpers\EmailReportHelper.cs" />
     <Compile Include="Helpers\InternetHelper.cs" />
     <Compile Include="Helpers\LoggerHelper.cs" />
     <Compile Include="Helpers\MensajeHelper.cs" />
