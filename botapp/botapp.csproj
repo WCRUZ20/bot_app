@@ -240,6 +240,12 @@
     <Compile Include="Interfaces\Secundarias\DescargaBotInterface.Designer.cs">
       <DependentUpon>DescargaBotInterface.cs</DependentUpon>
     </Compile>
+    <Compile Include="Interfaces\Secundarias\EmailConfigForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Interfaces\Secundarias\EmailConfigForm.Designer.cs">
+      <DependentUpon>EmailConfigForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Interfaces\Secundarias\HistorialBotInterface.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -38,6 +38,7 @@ namespace botapp.Interfaces.Secundarias
             this.label11 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnGuardar = new System.Windows.Forms.Button();
+            this.btnConfigCorreo = new System.Windows.Forms.Button();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.txtToken2Captcha = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -105,7 +106,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5F));
@@ -140,7 +141,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel16, 0, 7);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(2, 36);
-            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.Padding = new System.Windows.Forms.Padding(30, 0, 30, 0);
             this.tableLayoutPanel2.RowCount = 10;
@@ -168,7 +169,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel14.Controls.Add(this.label11, 0, 0);
             this.tableLayoutPanel14.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel14.Location = new System.Drawing.Point(32, 386);
-            this.tableLayoutPanel14.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel14.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel14.Name = "tableLayoutPanel14";
             this.tableLayoutPanel14.RowCount = 1;
             this.tableLayoutPanel14.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -180,7 +181,7 @@ namespace botapp.Interfaces.Secundarias
             this.txtRutaDirNP.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtRutaDirNP.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtRutaDirNP.Location = new System.Drawing.Point(156, 2);
-            this.txtRutaDirNP.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtRutaDirNP.Margin = new System.Windows.Forms.Padding(2);
             this.txtRutaDirNP.Name = "txtRutaDirNP";
             this.txtRutaDirNP.Size = new System.Drawing.Size(533, 27);
             this.txtRutaDirNP.TabIndex = 1;
@@ -194,7 +195,7 @@ namespace botapp.Interfaces.Secundarias
             this.btnBuscarNP.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBuscarNP.ForeColor = System.Drawing.Color.White;
             this.btnBuscarNP.Location = new System.Drawing.Point(693, 2);
-            this.btnBuscarNP.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnBuscarNP.Margin = new System.Windows.Forms.Padding(2);
             this.btnBuscarNP.Name = "btnBuscarNP";
             this.btnBuscarNP.Size = new System.Drawing.Size(73, 27);
             this.btnBuscarNP.TabIndex = 0;
@@ -217,31 +218,50 @@ namespace botapp.Interfaces.Secundarias
             // panel1
             // 
             this.panel1.Controls.Add(this.btnGuardar);
+            this.panel1.Controls.Add(this.btnConfigCorreo);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel1.Location = new System.Drawing.Point(650, 578);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel1.Location = new System.Drawing.Point(500, 578);
+            this.panel1.Margin = new System.Windows.Forms.Padding(2);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(8, 20, 8, 20);
-            this.panel1.Size = new System.Drawing.Size(150, 62);
+            this.panel1.Size = new System.Drawing.Size(300, 62);
             this.panel1.TabIndex = 2;
             // 
             // btnGuardar
             // 
             this.btnGuardar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(197)))), ((int)(((byte)(94)))));
-            this.btnGuardar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnGuardar.Dock = System.Windows.Forms.DockStyle.Right;
             this.btnGuardar.FlatAppearance.BorderSize = 0;
             this.btnGuardar.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             this.btnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGuardar.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnGuardar.ForeColor = System.Drawing.Color.White;
-            this.btnGuardar.Location = new System.Drawing.Point(8, 20);
-            this.btnGuardar.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btnGuardar.Location = new System.Drawing.Point(158, 20);
+            this.btnGuardar.Margin = new System.Windows.Forms.Padding(2);
             this.btnGuardar.Name = "btnGuardar";
             this.btnGuardar.Size = new System.Drawing.Size(134, 22);
             this.btnGuardar.TabIndex = 1;
             this.btnGuardar.Text = "GUARDAR 💾";
             this.btnGuardar.UseVisualStyleBackColor = false;
             this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
+            // 
+            // btnConfigCorreo
+            // 
+            this.btnConfigCorreo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.btnConfigCorreo.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnConfigCorreo.FlatAppearance.BorderSize = 0;
+            this.btnConfigCorreo.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(78)))), ((int)(((byte)(216)))));
+            this.btnConfigCorreo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnConfigCorreo.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnConfigCorreo.ForeColor = System.Drawing.Color.White;
+            this.btnConfigCorreo.Location = new System.Drawing.Point(8, 20);
+            this.btnConfigCorreo.Margin = new System.Windows.Forms.Padding(2);
+            this.btnConfigCorreo.Name = "btnConfigCorreo";
+            this.btnConfigCorreo.Size = new System.Drawing.Size(142, 22);
+            this.btnConfigCorreo.TabIndex = 2;
+            this.btnConfigCorreo.Text = "CORREO ✉️";
+            this.btnConfigCorreo.UseVisualStyleBackColor = false;
+            this.btnConfigCorreo.Click += new System.EventHandler(this.btnConfigCorreo_Click);
             // 
             // tableLayoutPanel5
             // 
@@ -252,11 +272,11 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel5.Controls.Add(this.label4, 0, 0);
             this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel5.Location = new System.Drawing.Point(32, 194);
-            this.tableLayoutPanel5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel5.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel5.Name = "tableLayoutPanel5";
             this.tableLayoutPanel5.RowCount = 1;
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 59F));
+            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
             this.tableLayoutPanel5.Size = new System.Drawing.Size(768, 60);
             this.tableLayoutPanel5.TabIndex = 5;
             // 
@@ -265,7 +285,7 @@ namespace botapp.Interfaces.Secundarias
             this.txtToken2Captcha.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtToken2Captcha.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtToken2Captcha.Location = new System.Drawing.Point(155, 2);
-            this.txtToken2Captcha.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtToken2Captcha.Margin = new System.Windows.Forms.Padding(2);
             this.txtToken2Captcha.Name = "txtToken2Captcha";
             this.txtToken2Captcha.Size = new System.Drawing.Size(611, 26);
             this.txtToken2Captcha.TabIndex = 2;
@@ -304,7 +324,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel3.Controls.Add(this.label2, 0, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(32, 66);
-            this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 1;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -316,7 +336,7 @@ namespace botapp.Interfaces.Secundarias
             this.txtSriUrl.Dock = System.Windows.Forms.DockStyle.Top;
             this.txtSriUrl.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtSriUrl.Location = new System.Drawing.Point(155, 2);
-            this.txtSriUrl.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtSriUrl.Margin = new System.Windows.Forms.Padding(2);
             this.txtSriUrl.Name = "txtSriUrl";
             this.txtSriUrl.Size = new System.Drawing.Size(611, 26);
             this.txtSriUrl.TabIndex = 4;
@@ -343,7 +363,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel4.Location = new System.Drawing.Point(32, 130);
-            this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 1;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -355,7 +375,7 @@ namespace botapp.Interfaces.Secundarias
             this.txtEdocUrl.Dock = System.Windows.Forms.DockStyle.Top;
             this.txtEdocUrl.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtEdocUrl.Location = new System.Drawing.Point(155, 2);
-            this.txtEdocUrl.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtEdocUrl.Margin = new System.Windows.Forms.Padding(2);
             this.txtEdocUrl.Name = "txtEdocUrl";
             this.txtEdocUrl.Size = new System.Drawing.Size(611, 26);
             this.txtEdocUrl.TabIndex = 3;
@@ -383,11 +403,11 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel6.Controls.Add(this.btnBuscar, 2, 0);
             this.tableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel6.Location = new System.Drawing.Point(32, 322);
-            this.tableLayoutPanel6.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel6.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel6.Name = "tableLayoutPanel6";
             this.tableLayoutPanel6.RowCount = 1;
             this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 59F));
+            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
             this.tableLayoutPanel6.Size = new System.Drawing.Size(768, 60);
             this.tableLayoutPanel6.TabIndex = 6;
             // 
@@ -408,7 +428,7 @@ namespace botapp.Interfaces.Secundarias
             this.txtRutaDirectorio.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtRutaDirectorio.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtRutaDirectorio.Location = new System.Drawing.Point(155, 2);
-            this.txtRutaDirectorio.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtRutaDirectorio.Margin = new System.Windows.Forms.Padding(2);
             this.txtRutaDirectorio.Name = "txtRutaDirectorio";
             this.txtRutaDirectorio.Size = new System.Drawing.Size(533, 26);
             this.txtRutaDirectorio.TabIndex = 1;
@@ -440,7 +460,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel9.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel9.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tableLayoutPanel9.Location = new System.Drawing.Point(32, 258);
-            this.tableLayoutPanel9.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel9.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel9.Name = "tableLayoutPanel9";
             this.tableLayoutPanel9.RowCount = 1;
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -463,7 +483,7 @@ namespace botapp.Interfaces.Secundarias
             this.txtTokenCapSolver.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtTokenCapSolver.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtTokenCapSolver.Location = new System.Drawing.Point(155, 2);
-            this.txtTokenCapSolver.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtTokenCapSolver.Margin = new System.Windows.Forms.Padding(2);
             this.txtTokenCapSolver.Name = "txtTokenCapSolver";
             this.txtTokenCapSolver.Size = new System.Drawing.Size(611, 26);
             this.txtTokenCapSolver.TabIndex = 1;
@@ -479,7 +499,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel7.Controls.Add(this.tableLayoutPanel8, 1, 0);
             this.tableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel7.Location = new System.Drawing.Point(32, 514);
-            this.tableLayoutPanel7.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel7.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel7.Name = "tableLayoutPanel7";
             this.tableLayoutPanel7.RowCount = 1;
             this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -509,7 +529,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel11.Controls.Add(this.tableLayoutPanel13, 0, 2);
             this.tableLayoutPanel11.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel11.Location = new System.Drawing.Point(462, 2);
-            this.tableLayoutPanel11.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel11.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel11.Name = "tableLayoutPanel11";
             this.tableLayoutPanel11.RowCount = 3;
             this.tableLayoutPanel11.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
@@ -540,7 +560,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel12.Controls.Add(this.numericAdvertencia, 1, 0);
             this.tableLayoutPanel12.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel12.Location = new System.Drawing.Point(2, 20);
-            this.tableLayoutPanel12.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel12.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel12.Name = "tableLayoutPanel12";
             this.tableLayoutPanel12.RowCount = 1;
             this.tableLayoutPanel12.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -569,7 +589,7 @@ namespace botapp.Interfaces.Secundarias
             0,
             131072});
             this.numericAdvertencia.Location = new System.Drawing.Point(152, 2);
-            this.numericAdvertencia.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.numericAdvertencia.Margin = new System.Windows.Forms.Padding(2);
             this.numericAdvertencia.Name = "numericAdvertencia";
             this.numericAdvertencia.Size = new System.Drawing.Size(44, 20);
             this.numericAdvertencia.TabIndex = 1;
@@ -588,7 +608,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel13.Controls.Add(this.numericBloqueo, 1, 0);
             this.tableLayoutPanel13.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel13.Location = new System.Drawing.Point(2, 38);
-            this.tableLayoutPanel13.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel13.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel13.Name = "tableLayoutPanel13";
             this.tableLayoutPanel13.RowCount = 1;
             this.tableLayoutPanel13.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -617,7 +637,7 @@ namespace botapp.Interfaces.Secundarias
             0,
             131072});
             this.numericBloqueo.Location = new System.Drawing.Point(152, 2);
-            this.numericBloqueo.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.numericBloqueo.Margin = new System.Windows.Forms.Padding(2);
             this.numericBloqueo.Name = "numericBloqueo";
             this.numericBloqueo.Size = new System.Drawing.Size(44, 20);
             this.numericBloqueo.TabIndex = 1;
@@ -636,7 +656,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel8.Controls.Add(this.chkInteraccionHumana, 0, 0);
             this.tableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel8.Location = new System.Drawing.Point(155, 2);
-            this.tableLayoutPanel8.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel8.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel8.Name = "tableLayoutPanel8";
             this.tableLayoutPanel8.RowCount = 3;
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
@@ -651,7 +671,7 @@ namespace botapp.Interfaces.Secundarias
             this.chkUse2Captcha.Dock = System.Windows.Forms.DockStyle.Left;
             this.chkUse2Captcha.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkUse2Captcha.Location = new System.Drawing.Point(2, 38);
-            this.chkUse2Captcha.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chkUse2Captcha.Margin = new System.Windows.Forms.Padding(2);
             this.chkUse2Captcha.Name = "chkUse2Captcha";
             this.chkUse2Captcha.Size = new System.Drawing.Size(96, 16);
             this.chkUse2Captcha.TabIndex = 10;
@@ -664,7 +684,7 @@ namespace botapp.Interfaces.Secundarias
             this.chkUseCapSolver.Dock = System.Windows.Forms.DockStyle.Left;
             this.chkUseCapSolver.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkUseCapSolver.Location = new System.Drawing.Point(2, 20);
-            this.chkUseCapSolver.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chkUseCapSolver.Margin = new System.Windows.Forms.Padding(2);
             this.chkUseCapSolver.Name = "chkUseCapSolver";
             this.chkUseCapSolver.Size = new System.Drawing.Size(102, 14);
             this.chkUseCapSolver.TabIndex = 9;
@@ -677,7 +697,7 @@ namespace botapp.Interfaces.Secundarias
             this.chkInteraccionHumana.Dock = System.Windows.Forms.DockStyle.Left;
             this.chkInteraccionHumana.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkInteraccionHumana.Location = new System.Drawing.Point(2, 2);
-            this.chkInteraccionHumana.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chkInteraccionHumana.Margin = new System.Windows.Forms.Padding(2);
             this.chkInteraccionHumana.Name = "chkInteraccionHumana";
             this.chkInteraccionHumana.Size = new System.Drawing.Size(181, 14);
             this.chkInteraccionHumana.TabIndex = 8;
@@ -697,7 +717,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel16.Controls.Add(this.checkedListBox1, 3, 0);
             this.tableLayoutPanel16.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel16.Location = new System.Drawing.Point(32, 450);
-            this.tableLayoutPanel16.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel16.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel16.Name = "tableLayoutPanel16";
             this.tableLayoutPanel16.RowCount = 1;
             this.tableLayoutPanel16.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -712,7 +732,7 @@ namespace botapp.Interfaces.Secundarias
             this.chkHeadless.Dock = System.Windows.Forms.DockStyle.Top;
             this.chkHeadless.Font = new System.Drawing.Font("Segoe UI", 10.2F);
             this.chkHeadless.Location = new System.Drawing.Point(160, 2);
-            this.chkHeadless.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chkHeadless.Margin = new System.Windows.Forms.Padding(2);
             this.chkHeadless.Name = "chkHeadless";
             this.chkHeadless.Size = new System.Drawing.Size(199, 23);
             this.chkHeadless.TabIndex = 7;
@@ -739,7 +759,7 @@ namespace botapp.Interfaces.Secundarias
             this.tableLayoutPanel10.Controls.Add(this.txtNamebtn, 0, 1);
             this.tableLayoutPanel10.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel10.Location = new System.Drawing.Point(363, 2);
-            this.tableLayoutPanel10.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel10.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel10.Name = "tableLayoutPanel10";
             this.tableLayoutPanel10.RowCount = 2;
             this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -764,7 +784,7 @@ namespace botapp.Interfaces.Secundarias
             // 
             this.txtNamebtn.Dock = System.Windows.Forms.DockStyle.Left;
             this.txtNamebtn.Location = new System.Drawing.Point(2, 30);
-            this.txtNamebtn.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtNamebtn.Margin = new System.Windows.Forms.Padding(2);
             this.txtNamebtn.Name = "txtNamebtn";
             this.txtNamebtn.Size = new System.Drawing.Size(194, 20);
             this.txtNamebtn.TabIndex = 1;
@@ -780,7 +800,7 @@ namespace botapp.Interfaces.Secundarias
             "Chrome",
             "Firefox"});
             this.checkedListBox1.Location = new System.Drawing.Point(566, 2);
-            this.checkedListBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.checkedListBox1.Margin = new System.Windows.Forms.Padding(2);
             this.checkedListBox1.Name = "checkedListBox1";
             this.checkedListBox1.Size = new System.Drawing.Size(200, 56);
             this.checkedListBox1.TabIndex = 10;
@@ -790,7 +810,7 @@ namespace botapp.Interfaces.Secundarias
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tableLayoutPanel1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "ConfigBotInterface";
             this.Size = new System.Drawing.Size(836, 680);
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -837,6 +857,7 @@ namespace botapp.Interfaces.Secundarias
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnGuardar;
+        private System.Windows.Forms.Button btnConfigCorreo;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
         private System.Windows.Forms.Button btnBuscar;

@@ -133,5 +133,14 @@ namespace botapp.Interfaces.Secundarias
                 }
             }
         }
+
+        private void btnConfigCorreo_Click(object sender, EventArgs e)
+        {
+            using (var form = new EmailConfigForm())
+            {
+                form.ShowDialog(this);
+            }
+
+        }
     }
 }
