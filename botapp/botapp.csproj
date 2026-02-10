@@ -293,6 +293,9 @@
     <EmbeddedResource Include="Interfaces\Secundarias\DescargaBotInterface.resx">
       <DependentUpon>DescargaBotInterface.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Interfaces\Secundarias\EmailConfigForm.resx">
+      <DependentUpon>EmailConfigForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Interfaces\Secundarias\HistorialBotInterface.resx">
       <DependentUpon>HistorialBotInterface.cs</DependentUpon>
     </EmbeddedResource>
