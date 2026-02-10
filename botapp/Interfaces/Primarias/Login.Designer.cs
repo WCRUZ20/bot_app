@@ -88,7 +88,7 @@ namespace botapp.Interfaces.Primarias
             this.tableLayoutPanel1.Controls.Add(this.label4, 0, 7);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(24, 58);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 8;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 18.75F));
@@ -112,7 +112,7 @@ namespace botapp.Interfaces.Primarias
             this.tableLayoutPanel3.Controls.Add(this.txtclave, 0, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(2, 137);
-            this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.tableLayoutPanel3.RowCount = 1;
@@ -126,7 +126,7 @@ namespace botapp.Interfaces.Primarias
             this.panel3.Controls.Add(this.btnVerClave);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel3.Location = new System.Drawing.Point(129, 2);
-            this.panel3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel3.Margin = new System.Windows.Forms.Padding(2);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(18, 22);
             this.panel3.TabIndex = 1;
@@ -158,9 +158,9 @@ namespace botapp.Interfaces.Primarias
             this.txtclave.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtclave.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.txtclave.Location = new System.Drawing.Point(10, 2);
-            this.txtclave.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtclave.Margin = new System.Windows.Forms.Padding(2);
             this.txtclave.Name = "txtclave";
-            this.txtclave.PasswordChar = '*';
+            this.txtclave.PasswordChar = '•';
             this.txtclave.Size = new System.Drawing.Size(115, 22);
             this.txtclave.TabIndex = 1;
             // 
@@ -186,9 +186,9 @@ namespace botapp.Interfaces.Primarias
             this.tableLayoutPanel2.Controls.Add(this.btningresar, 0, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(2, 197);
-            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
+            this.tableLayoutPanel2.Padding = new System.Windows.Forms.Padding(8);
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -205,7 +205,7 @@ namespace botapp.Interfaces.Primarias
             this.btningresar.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btningresar.ForeColor = System.Drawing.Color.White;
             this.btningresar.Location = new System.Drawing.Point(10, 10);
-            this.btningresar.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.btningresar.Margin = new System.Windows.Forms.Padding(2);
             this.btningresar.Name = "btningresar";
             this.btningresar.Size = new System.Drawing.Size(137, 21);
             this.btningresar.TabIndex = 4;
@@ -249,7 +249,7 @@ namespace botapp.Interfaces.Primarias
             this.chkgurdcontr.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkgurdcontr.ForeColor = System.Drawing.Color.Black;
             this.chkgurdcontr.Location = new System.Drawing.Point(2, 167);
-            this.chkgurdcontr.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chkgurdcontr.Margin = new System.Windows.Forms.Padding(2);
             this.chkgurdcontr.Name = "chkgurdcontr";
             this.chkgurdcontr.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
             this.chkgurdcontr.Size = new System.Drawing.Size(157, 26);
@@ -262,7 +262,7 @@ namespace botapp.Interfaces.Primarias
             this.panel2.Controls.Add(this.txtusuario);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(2, 77);
-            this.panel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel2.Margin = new System.Windows.Forms.Padding(2);
             this.panel2.Name = "panel2";
             this.panel2.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.panel2.Size = new System.Drawing.Size(157, 26);
@@ -275,7 +275,7 @@ namespace botapp.Interfaces.Primarias
             this.txtusuario.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtusuario.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtusuario.Location = new System.Drawing.Point(8, 0);
-            this.txtusuario.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtusuario.Margin = new System.Windows.Forms.Padding(2);
             this.txtusuario.Name = "txtusuario";
             this.txtusuario.Size = new System.Drawing.Size(141, 22);
             this.txtusuario.TabIndex = 0;
@@ -290,7 +290,7 @@ namespace botapp.Interfaces.Primarias
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(157, 17);
             this.label4.TabIndex = 8;
-            this.label4.Text = "®️2025 2gether";
+            this.label4.Text = "®️2026 2gether";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // tableLayoutPanel6
@@ -302,7 +302,7 @@ namespace botapp.Interfaces.Primarias
             this.tableLayoutPanel6.Controls.Add(this.tableLayoutPanel1, 0, 1);
             this.tableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel6.Location = new System.Drawing.Point(52, 32);
-            this.tableLayoutPanel6.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel6.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel6.Name = "tableLayoutPanel6";
             this.tableLayoutPanel6.Padding = new System.Windows.Forms.Padding(22, 28, 22, 28);
             this.tableLayoutPanel6.RowCount = 2;
@@ -321,7 +321,7 @@ namespace botapp.Interfaces.Primarias
             this.tableLayoutPanel4.Controls.Add(this.tableLayoutPanel5, 1, 0);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 1;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -333,7 +333,7 @@ namespace botapp.Interfaces.Primarias
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Image = global::botapp.Properties.Resources.fondo_video;
             this.pictureBox1.Location = new System.Drawing.Point(2, 2);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(534, 557);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -347,7 +347,7 @@ namespace botapp.Interfaces.Primarias
             this.tableLayoutPanel5.Controls.Add(this.panel1, 0, 1);
             this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel5.Location = new System.Drawing.Point(540, 2);
-            this.tableLayoutPanel5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tableLayoutPanel5.Margin = new System.Windows.Forms.Padding(2);
             this.tableLayoutPanel5.Name = "tableLayoutPanel5";
             this.tableLayoutPanel5.Padding = new System.Windows.Forms.Padding(19, 20, 19, 20);
             this.tableLayoutPanel5.RowCount = 3;
@@ -362,7 +362,7 @@ namespace botapp.Interfaces.Primarias
             this.panel1.Controls.Add(this.tableLayoutPanel6);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(21, 73);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel1.Margin = new System.Windows.Forms.Padding(2);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(52, 32, 52, 32);
             this.panel1.Size = new System.Drawing.Size(313, 409);
@@ -375,7 +375,7 @@ namespace botapp.Interfaces.Primarias
             this.BackColor = System.Drawing.Color.White;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.Controls.Add(this.tableLayoutPanel4);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Login";
             this.Size = new System.Drawing.Size(897, 561);
             this.tableLayoutPanel1.ResumeLayout(false);

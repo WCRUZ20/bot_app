@@ -784,7 +784,7 @@ namespace botapp.Interfaces.Secundarias
             _procesoEnCurso = true;
             _cancellationTokenSource = new CancellationTokenSource();
             ActualizarEstadoBotonProceso(true);
-            //ReiniciarResultados();
+            ReiniciarResultados();
             LimpiarResumenProceso();
 
             try
@@ -805,10 +805,18 @@ namespace botapp.Interfaces.Secundarias
 
                 await Task.WhenAll(tareas);
 
+                string reporteGeneral = GenerarReporteGeneralDescargaPdf();
+
                 if (mostrarMensajes)
                 {
                     ReproducirMensajeFinal(ExistenFallosEnResumen());
-                    MessageBox.Show("Proceso finalizado correctamente", "OK",
+                    string mensajeFinal = "Proceso finalizado correctamente";
+                    if (!string.IsNullOrWhiteSpace(reporteGeneral))
+                    {
+                        mensajeFinal += $"\n\nReporte general generado:\n{reporteGeneral}";
+                    }
+
+                    MessageBox.Show(mensajeFinal, "OK",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 //MostrarResultadosFinales();
@@ -849,6 +857,68 @@ namespace botapp.Interfaces.Secundarias
             {
                 _resumenPorCliente.Clear();
             }
+        }
+
+        private void ReiniciarResultados()
+        {
+            lock (_lockResultados)
+            {
+                _resultados.Clear();
+            }
+        }
+
+        private string GenerarReporteGeneralDescargaPdf()
+        {
+            List<ResultadoProcesoItem> snapshot;
+            lock (_lockResultados)
+            {
+                snapshot = _resultados.ToList();
+            }
+
+            if (!snapshot.Any())
+            {
+                return string.Empty;
+            }
+
+            string reportesDir = Utils.ObtenerRutaDescargaPersonalizada("BOT_REPORTES");
+            string ruta = Path.Combine(reportesDir, $"ReporteGeneralDescarga_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
+
+            using (var stream = new FileStream(ruta, FileMode.Create, FileAccess.Write))
+            {
+                var doc = new Document(PageSize.A4.Rotate(), 20, 20, 20, 20);
+                PdfWriter.GetInstance(doc, stream);
+                doc.Open();
+
+                var titulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 13);
+                var normal = FontFactory.GetFont(FontFactory.HELVETICA, 9);
+
+                doc.Add(new Paragraph("Reporte general de descarga", titulo));
+                doc.Add(new Paragraph($"Fecha generación: {DateTime.Now:yyyy-MM-dd HH:mm:ss}", normal));
+                doc.Add(new Paragraph(" "));
+
+                PdfPTable tabla = new PdfPTable(5) { WidthPercentage = 100 };
+                tabla.SetWidths(new float[] { 3.5f, 1f, 1f, 2.5f, 2f });
+                tabla.AddCell("Cliente");
+                tabla.AddCell("Mes");
+                tabla.AddCell("Año");
+                tabla.AddCell("Tipo documento");
+                tabla.AddCell("Estado proceso");
+
+                foreach (var item in snapshot.OrderBy(x => x.Nombre).ThenBy(x => x.Anio).ThenBy(x => x.Mes).ThenBy(x => x.Documento))
+                {
+                    tabla.AddCell(item.Nombre ?? item.Usuario ?? string.Empty);
+                    tabla.AddCell(item.Mes ?? string.Empty);
+                    tabla.AddCell(item.Anio ?? string.Empty);
+                    tabla.AddCell(item.Documento ?? string.Empty);
+                    tabla.AddCell(ObtenerTextoEstado(item.Estado));
+                }
+
+                doc.Add(tabla);
+                doc.Close();
+            }
+
+            LoggerHelper.Log(_logPath, $"📄 Reporte general de descarga generado: {ruta}");
+            return ruta;
         }
 
         private bool ExistenFallosEnResumen()

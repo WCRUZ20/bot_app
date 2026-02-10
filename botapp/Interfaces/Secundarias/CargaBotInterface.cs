@@ -1,6 +1,8 @@
 ﻿using botapp.Core;
 using botapp.Helpers;
 using botapp.Models;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,6 +26,14 @@ namespace botapp.Interfaces.Secundarias
         private DataTable dt;
         private string _usuarioActual = "";
         private bool writepermission = false;
+
+        private class ResumenCargaCliente
+        {
+            public string Cliente { get; set; }
+            public DateTime FechaCarga { get; set; }
+            public int ClavesNuevasCargadas { get; set; }
+            public string EstadoCarga { get; set; }
+        }
 
         public CargaBotInterface(string usuarioActual)
         {
@@ -49,8 +59,8 @@ namespace botapp.Interfaces.Secundarias
             grdClientes.EnableHeadersVisualStyles = false;
             grdClientes.ColumnHeadersDefaultCellStyle.BackColor = Color.Gray;
             grdClientes.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            grdClientes.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 7F, FontStyle.Bold);
-            grdClientes.DefaultCellStyle.Font = new Font("Segoe UI", 7F);
+            grdClientes.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 7F, FontStyle.Bold);
+            grdClientes.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 7F);
             //grdClientes.DefaultCellStyle.BackColor = Color.White;
             //grdClientes.DefaultCellStyle.SelectionBackColor = Color.White;
             //grdClientes.DefaultCellStyle.SelectionForeColor = Color.Black;
@@ -74,7 +84,7 @@ namespace botapp.Interfaces.Secundarias
             grdClientes.EnableHeadersVisualStyles = false;
             grdClientes.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(30, 30, 47); // azul grisáceo oscuro
             grdClientes.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            grdClientes.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 7F, FontStyle.Bold);
+            grdClientes.ColumnHeadersDefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 7F, FontStyle.Bold);
 
             // Celdas
             grdClientes.DefaultCellStyle.BackColor = Color.White;
@@ -350,6 +360,7 @@ namespace botapp.Interfaces.Secundarias
             string sol_provider = "";
             string _estado = "";
             string _obervacion = "";
+            var resumenCarga = new List<ResumenCargaCliente>();
 
             writepermission = await helper.TienePermisoEscrituraAsync(_usuarioActual);
 
@@ -458,13 +469,89 @@ namespace botapp.Interfaces.Secundarias
                     if (writepermission) { var ok = helper.InsertarTransactionAsync(trans); }
                     
                     LoggerHelper.Log(logPath, $"[{nombre}] Resultado EDOC: {(resultado.exito ? "✅" : "❌")} - {resultado.mensaje}");
+
+                    resumenCarga.Add(new ResumenCargaCliente
+                    {
+                        Cliente = nombre,
+                        FechaCarga = DateTime.Now,
+                        ClavesNuevasCargadas = resultado.exito ? claves.Length : 0,
+                        EstadoCarga = resultado.exito ? "Carga exitosa" : "Carga fallida"
+                    });
+
                 }
             }
             else
             {
                 LoggerHelper.Log(logPath, "Deteniendo proceso de carga. Sin clientes que cargar.");
             }
+
+            string rutaResumenGeneral = GenerarResumenGeneralCargaPdf(resumenCarga, logPath);
             LoggerHelper.Log(logPath, "Fin Ejecución proceso de carga.");
+
+            if (!string.IsNullOrWhiteSpace(rutaResumenGeneral))
+            {
+                MessageBox.Show($"Proceso de carga finalizado.\n\nResumen general generado:\n{rutaResumenGeneral}",
+                    "Resumen carga", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private string GenerarResumenGeneralCargaPdf(List<ResumenCargaCliente> resumenCarga, string logPath)
+        {
+            if (resumenCarga == null || resumenCarga.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            string reportesDir = Helpers.Utils.ObtenerRutaDescargaPersonalizada("BOT_REPORTES");
+            string ruta = Path.Combine(reportesDir, $"ResumenGeneralCarga_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
+
+            using (var stream = new FileStream(ruta, FileMode.Create, FileAccess.Write))
+            {
+                var doc = new Document(PageSize.A4, 25, 25, 25, 25);
+                PdfWriter.GetInstance(doc, stream);
+                doc.Open();
+
+                var titulo = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 13);
+                var normal = FontFactory.GetFont(FontFactory.HELVETICA, 10);
+
+                doc.Add(new Paragraph("Resumen general de carga", titulo));
+                doc.Add(new Paragraph($"Fecha generación: {DateTime.Now:yyyy-MM-dd HH:mm:ss}", normal));
+                doc.Add(new Paragraph(" "));
+
+                PdfPTable tabla = new PdfPTable(4) { WidthPercentage = 100 };
+                tabla.SetWidths(new float[] { 3.5f, 2f, 1.5f, 2f });
+                tabla.AddCell("Cliente");
+                tabla.AddCell("Fecha carga");
+                tabla.AddCell("Claves nuevas");
+                tabla.AddCell("Estado carga");
+
+                foreach (var item in resumenCarga)
+                {
+                    tabla.AddCell(item.Cliente ?? string.Empty);
+                    tabla.AddCell(item.FechaCarga.ToString("yyyy-MM-dd HH:mm:ss"));
+                    tabla.AddCell(item.ClavesNuevasCargadas.ToString());
+                    tabla.AddCell(item.EstadoCarga ?? string.Empty);
+                }
+
+                doc.Add(tabla);
+                doc.Close();
+            }
+
+            LoggerHelper.Log(logPath, $"📄 Resumen general de carga generado: {ruta}");
+
+            return ruta;
+
+        }
+
+        private static string EscaparCsv(string valor)
+        {
+            if (string.IsNullOrEmpty(valor))
+            {
+                return "\"\"";
+            }
+
+            return $"\"{valor.Replace("\"", "\"\"")}\"";
+
         }
 
         private (bool exito, string mensaje) EnviarClavesWS(string token, string[] claves, string wslink)
