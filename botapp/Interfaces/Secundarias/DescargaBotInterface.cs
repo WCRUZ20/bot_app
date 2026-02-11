@@ -806,6 +806,21 @@ namespace botapp.Interfaces.Secundarias
                 await Task.WhenAll(tareas);
 
                 string reporteGeneral = GenerarReporteGeneralDescargaPdf();
+                string resultadoEnvioCorreo = string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(reporteGeneral))
+                {
+                    if (EmailReportHelper.TrySendPdfReport(reporteGeneral, "Descarga", out string mensajeCorreo))
+                    {
+                        //LoggerHelper.Log(_logPath, $"📧 Reporte de descarga enviado por correo: {mensajeCorreo}");
+                        resultadoEnvioCorreo = "\n\nReporte enviado por correo correctamente.";
+                    }
+                    else
+                    {
+                        //LoggerHelper.Log(_logPath, $"⚠️ No se pudo enviar el reporte de descarga por correo: {mensajeCorreo}");
+                        resultadoEnvioCorreo = $"\n\nNo se pudo enviar el reporte por correo:\n{mensajeCorreo}";
+                    }
+                }
 
                 if (mostrarMensajes)
                 {
@@ -813,7 +828,7 @@ namespace botapp.Interfaces.Secundarias
                     string mensajeFinal = "Proceso finalizado correctamente";
                     if (!string.IsNullOrWhiteSpace(reporteGeneral))
                     {
-                        mensajeFinal += $"\n\nReporte general generado:\n{reporteGeneral}";
+                        mensajeFinal += $"\n\nReporte general generado:\n{reporteGeneral}{resultadoEnvioCorreo}";
                     }
 
                     MessageBox.Show(mensajeFinal, "OK",
@@ -917,7 +932,7 @@ namespace botapp.Interfaces.Secundarias
                 doc.Close();
             }
 
-            LoggerHelper.Log(_logPath, $"📄 Reporte general de descarga generado: {ruta}");
+            //LoggerHelper.Log(_logPath, $"📄 Reporte general de descarga generado: {ruta}");
             return ruta;
         }
 
@@ -1333,7 +1348,7 @@ namespace botapp.Interfaces.Secundarias
             for (int i = 0; i < estrategias.Count; i++)
             {
                 // Pequeña espera entre estrategias (deja respirar a PrimeFaces/AJAX)
-                await page.WaitForTimeoutAsync(6000);
+                await page.WaitForTimeoutAsync(8000);
 
                 await estrategias[i](page);
 
@@ -1458,6 +1473,100 @@ namespace botapp.Interfaces.Secundarias
                         }
                     }", btnBuscarSelector);
                 },
+
+                // 7) PrimeFaces.ab directo reconstruyendo parámetros (más confiable que eval onclick)
+                async (page) =>
+                {
+                    await page.EvaluateAsync(@"
+                        (sel) => {
+                            const el = document.querySelector(sel);
+                            if (!el) return;
+
+                            el.scrollIntoView({ block: 'center', inline: 'center' });
+                            el.focus();
+
+                            // Si PrimeFaces existe, intentamos el ajax call de forma directa
+                            const pf = window.PrimeFaces;
+                            if (pf && typeof pf.ab === 'function') {
+
+                                // id del botón (source)
+                                const sourceId = el.id || el.getAttribute('name');
+                                if (!sourceId) { el.click(); return; }
+
+                                // form id (si no lo encontramos, intenta deducirlo)
+                                const form = el.closest('form');
+                                const formId = form ? form.id : null;
+
+                                // En muchos PrimeFaces, el botón trae data-pf-validateclient / data-pf-ajax, etc.
+                                // No todos los proyectos lo tienen, pero si está, ayuda a respetar comportamiento.
+                                // p/u: process/update. Si no hay, usamos '@form' por seguridad.
+                                let process = '@form';
+                                let update  = '@form';
+
+                                // Algunas versiones guardan configs en dataset
+                                // (no siempre existe, pero si existe, lo intentamos)
+                                const ds = el.dataset || {};
+                                if (ds.pfProcess) process = ds.pfProcess;
+                                if (ds.pfUpdate)  update  = ds.pfUpdate;
+
+                                // Ejecutar AJAX request
+                                pf.ab({
+                                    s: sourceId,           // source
+                                    f: formId || undefined,// form
+                                    p: process,            // process
+                                    u: update              // update
+                                });
+
+                                return;
+                            }
+
+                            // Fallback si no hay PrimeFaces
+                            el.click();
+                        }
+                    ", btnBuscarSelector);
+                },
+
+                // 8) Click humano REAL (coordenadas) usando mouse (eventos trusted)
+                async (page) =>
+                {
+                    var locator = page.Locator(btnBuscarSelector).First;
+
+                    // Asegura que exista/esté visible
+                    await locator.WaitForAsync(new LocatorWaitForOptions
+                    {
+                        Timeout = 8000,
+                        State = WaitForSelectorState.Visible
+                    });
+
+                    // Scroll real del elemento
+                    await locator.ScrollIntoViewIfNeededAsync();
+
+                    // Pequeño hover (a veces quita overlays / tooltips que bloquean)
+                    await locator.HoverAsync(new LocatorHoverOptions { Timeout = 5000 });
+
+                    // Obtener caja del elemento y clickear en el centro con el mouse
+                    var box = await locator.BoundingBoxAsync();
+                    if (box == null)
+                    {
+                        // fallback si no hay bounding box
+                        await locator.ClickAsync(new LocatorClickOptions { Force = true, Timeout = 5000 });
+                        return;
+                    }
+
+                    float x = (float)(box.X + box.Width / 2.0);
+                    float y = (float)(box.Y + box.Height / 2.0);
+
+                    // Click con delay para simular humano y permitir handlers
+                    await page.Mouse.MoveAsync(x, y);
+                    await page.Mouse.DownAsync();
+                    await page.WaitForTimeoutAsync(60);
+                    await page.Mouse.UpAsync();
+
+                    // Extra: un segundo click corto por si el primero fue absorbido por overlay
+                    await page.WaitForTimeoutAsync(120);
+                    await page.Mouse.ClickAsync(x, y, new MouseClickOptions { Delay = 40, ClickCount = 1 });
+                }
+
             };
         }
 

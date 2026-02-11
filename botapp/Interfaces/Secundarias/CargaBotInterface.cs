@@ -486,11 +486,27 @@ namespace botapp.Interfaces.Secundarias
             }
 
             string rutaResumenGeneral = GenerarResumenGeneralCargaPdf(resumenCarga, logPath);
+            string resultadoEnvioCorreo = string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(rutaResumenGeneral))
+            {
+                if (EmailReportHelper.TrySendPdfReport(rutaResumenGeneral, "Carga", out string mensajeCorreo))
+                {
+                    LoggerHelper.Log(logPath, $"📧 Reporte de carga enviado por correo: {mensajeCorreo}");
+                    resultadoEnvioCorreo = "\n\nReporte enviado por correo correctamente.";
+                }
+                else
+                {
+                    LoggerHelper.Log(logPath, $"⚠️ No se pudo enviar el reporte de carga por correo: {mensajeCorreo}");
+                    resultadoEnvioCorreo = $"\n\nNo se pudo enviar el reporte por correo:\n{mensajeCorreo}";
+                }
+            }
+
             LoggerHelper.Log(logPath, "Fin Ejecución proceso de carga.");
 
             if (!string.IsNullOrWhiteSpace(rutaResumenGeneral))
             {
-                MessageBox.Show($"Proceso de carga finalizado.\n\nResumen general generado:\n{rutaResumenGeneral}",
+                MessageBox.Show($"Proceso de carga finalizado.\n\nResumen general generado:\n{rutaResumenGeneral}{resultadoEnvioCorreo}",
                     "Resumen carga", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
