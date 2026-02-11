@@ -1565,6 +1565,113 @@ namespace botapp.Interfaces.Secundarias
                     // Extra: un segundo click corto por si el primero fue absorbido por overlay
                     await page.WaitForTimeoutAsync(120);
                     await page.Mouse.ClickAsync(x, y, new MouseClickOptions { Delay = 40, ClickCount = 1 });
+                },
+
+                // 9) Disparar PointerEvent + KeyboardEvent para sitios con listeners modernos
+                async (page) =>
+                {
+                    await page.EvaluateAsync(@"(sel) => {
+                        const el = document.querySelector(sel);
+                        if (!el) return;
+
+                        el.scrollIntoView({ block: 'center', inline: 'center' });
+                        el.focus();
+
+                        const pointerTypes = ['pointerdown', 'pointerup'];
+                        pointerTypes.forEach((type) => {
+                            try {
+                                el.dispatchEvent(new PointerEvent(type, {
+                                    bubbles: true,
+                                    cancelable: true,
+                                    pointerType: 'mouse',
+                                    isPrimary: true
+                                }));
+                            } catch (e) {
+                                // En navegadores sin PointerEvent, no romper
+                            }
+                        });
+
+                        el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                        el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true }));
+                        el.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', code: 'Enter', bubbles: true }));
+                    }", btnBuscarSelector);
+                },
+
+                // 10) Quitar overlays temporales y luego click forzado
+                async (page) =>
+                {
+                    await page.EvaluateAsync(@"(sel) => {
+                        const el = document.querySelector(sel);
+                        if (!el) return;
+
+                        const posiblesBloqueos = [
+                            '.ui-widget-overlay',
+                            '.blockUI',
+                            '.ui-blockui',
+                            '[data-blockui]'
+                        ];
+
+                        posiblesBloqueos.forEach((css) => {
+                            document.querySelectorAll(css).forEach((node) => {
+                                if (!(node instanceof HTMLElement)) return;
+                                node.style.pointerEvents = 'none';
+                                node.style.display = 'none';
+                                node.setAttribute('aria-hidden', 'true');
+                            });
+                        });
+
+                        el.scrollIntoView({ block: 'center', inline: 'center' });
+                        el.click();
+                    }", btnBuscarSelector);
+                },
+
+                // 11) Enviar submit con evento cancelable + submit nativo (doble fallback)
+                async (page) =>
+                {
+                    await page.EvaluateAsync(@"(sel) => {
+                        const el = document.querySelector(sel);
+                        if (!el) return;
+
+                        const form = el.closest('form');
+                        if (!form) {
+                            el.click();
+                            return;
+                        }
+
+                        const ev = new Event('submit', { bubbles: true, cancelable: true });
+                        const allowed = form.dispatchEvent(ev);
+
+                        if (allowed) {
+                            if (typeof form.requestSubmit === 'function') {
+                                form.requestSubmit(el instanceof HTMLElement ? el : undefined);
+                            } else {
+                                form.submit();
+                            }
+                        }
+                    }", btnBuscarSelector);
+                },
+
+                // 12) Invocar onclick como Function para escapar de restricciones de eval
+                async (page) =>
+                {
+                    await page.EvaluateAsync(@"(sel) => {
+                        const el = document.querySelector(sel);
+                        if (!el) return;
+
+                        const onclick = el.getAttribute('onclick');
+                        if (!onclick) {
+                            el.click();
+                            return;
+                        }
+
+                        try {
+                            // Ejecuta en contexto global como si fuera inline handler
+                            const fn = new Function(onclick);
+                            fn.call(el);
+                        } catch (e) {
+                            el.click();
+                        }
+                    }", btnBuscarSelector);
                 }
 
             };
